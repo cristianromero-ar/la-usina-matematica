@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="La Usina Matemática — Laboratorio de Situaciones Didácticas y Recursos para la Enseñanza de la Matemática. Prof. Cristian Romero.">
+  <title>La Usina Matemática | Prof. Cristian Romero</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     BARRA DE ANUNCIO
+═══════════════════════════════════════════════════ -->
+<div class="announce-bar" id="announceBar">
+  <span>🧮 Nuevos recursos: <strong>La Escoba del Uno</strong> (ahora con modo Jugar en Red) y <strong>Juego del Gato Multiplicativo</strong></span>
+  <button class="announce-close" onclick="this.parentElement.remove()" aria-label="Cerrar">✕</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     NAVEGACIÓN
+═══════════════════════════════════════════════════ -->
+<header class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <div class="brand-icon">∑</div>
+      <div class="brand-text">
+        <span class="brand-name">La Usina Matemática</span>
+        <span class="brand-tagline">Laboratorio Didáctico</span>
+      </div>
+    </a>
+
+    <nav class="nav-menu" id="navMenu" aria-label="Navegación principal">
+      <a href="#inicio" class="nav-link active">Inicio</a>
+      <a href="#juegos" class="nav-link">Juegos</a>
+      <a href="#laboratorio" class="nav-link">Laboratorio</a>
+      <a href="#propuestas" class="nav-link">Propuestas</a>
+      <a href="#repositorio" class="nav-link">Repositorio</a>
+      <a href="#investigacion" class="nav-link">Investigación</a>
+      <a href="#contacto" class="nav-link">Contacto</a>
+    </nav>
+
+    <div class="nav-actions">
+      <!-- Buscador -->
+      <div class="search-wrap" id="searchWrap">
+        <button class="icon-btn" id="searchToggle" aria-label="Abrir buscador">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+        <div class="search-box" id="searchBox">
+          <input type="search" id="searchInput" placeholder="Buscar recursos, juegos, propuestas…" autocomplete="off">
+          <div class="search-results" id="searchResults"></div>
+        </div>
+      </div>
+      <!-- Modo oscuro -->
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Cambiar modo claro/oscuro">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <!-- Hamburguesa -->
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════ -->
+<section class="hero" id="inicio">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-grid"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <!-- Fórmulas flotantes decorativas -->
+    <div class="float-formula f1">∫f(x)dx</div>
+    <div class="float-formula f2">∑nᵢ</div>
+    <div class="float-formula f3">√2</div>
+    <div class="float-formula f4">π ≈ 3.14</div>
+    <div class="float-formula f5">∞</div>
+    <div class="float-formula f6">ax²+bx+c</div>
+  </div>
+
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Didáctica de la Matemática
+    </div>
+    <h1 class="hero-title">
+      La Usina<br>
+      <em>Matemática</em>
+    </h1>
+    <p class="hero-subtitle">
+      Laboratorio de Situaciones Didácticas<br>
+      y Recursos para la Enseñanza de la Matemática
+    </p>
+    <div class="hero-actions">
+      <a href="#juegos" class="btn btn-primary btn-lg">
+        Explorar juegos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#propuestas" class="btn btn-outline btn-lg">Ver propuestas didácticas</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num" data-target="12">0</span>
+        <span class="stat-label">Juegos digitales</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num" data-target="48">0</span>
+        <span class="stat-label">Propuestas didácticas</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num" data-target="4">0</span>
+        <span class="stat-label">Niveles educativos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <div class="scroll-indicator"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PERFIL PROFESIONAL
+═══════════════════════════════════════════════════ -->
+<section class="profile-section section" id="perfil">
+  <div class="container">
+    <div class="profile-card">
+      <div class="profile-avatar" aria-hidden="true">
+        <div class="avatar-inner">CR</div>
+        <div class="avatar-ring"></div>
+      </div>
+      <div class="profile-content">
+        <div class="profile-badge">Sobre el autor</div>
+        <h2 class="profile-name">Prof. Cristian Romero</h2>
+        <div class="profile-titles">
+          <span class="title-badge">Profesor en Matemática</span>
+          <span class="title-badge">Licenciado en Didáctica de la Matemática</span>
+          <span class="title-badge">Especialista en la Enseñanza de la Matemática</span>
+          <span class="title-badge accent">Tesista — Maestría en Educación Virtual</span>
+        </div>
+        <p class="profile-bio">
+          Mi trabajo se centra en la <strong>Didáctica de la Matemática</strong> como campo de investigación y producción. 
+          Me interesa especialmente el diseño de situaciones didácticas que coloquen al estudiante en el centro del proceso 
+          de construcción del conocimiento matemático, siguiendo los principios de la 
+          <strong>Teoría de las Situaciones Didácticas de Guy Brousseau</strong>.
+        </p>
+        <p class="profile-bio">
+          Trabajo en la <strong>educación virtual</strong>, el diseño de recursos digitales interactivos y la recuperación 
+          de juegos matemáticos tradicionales mediante entornos tecnológicos, buscando que cada recurso conserve 
+          sus intenciones didácticas originales mientras aprovecha las posibilidades del medio digital.
+        </p>
+        <div class="profile-philosophy">
+          <h3>Filosofía pedagógica</h3>
+          <div class="philosophy-grid">
+            <div class="philosophy-item">
+              <span class="phi-icon">🔬</span>
+              <span>Teoría de las Situaciones Didácticas (Brousseau)</span>
+            </div>
+            <div class="philosophy-item">
+              <span class="phi-icon">🧩</span>
+              <span>Resolución de problemas como eje didáctico</span>
+            </div>
+            <div class="philosophy-item">
+              <span class="phi-icon">🏗️</span>
+              <span>Construcción activa del conocimiento matemático</span>
+            </div>
+            <div class="philosophy-item">
+              <span class="phi-icon">🎮</span>
+              <span>Aprendizaje mediante el juego y la interacción</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     JUEGOS MATEMÁTICOS
+═══════════════════════════════════════════════════ -->
+<section class="section games-section" id="juegos">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Recursos interactivos</div>
+      <h2 class="section-title">Juegos Matemáticos</h2>
+      <p class="section-desc">
+        Juegos físicos digitalizados sin perder sus intenciones didácticas originales. 
+        Cada recurso está diseñado desde una perspectiva didáctica fundamentada.
+      </p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar" role="group" aria-label="Filtrar por nivel">
+      <button class="filter-btn active" data-filter="all">Todos</button>
+      <button class="filter-btn" data-filter="primario">Primario</button>
+      <button class="filter-btn" data-filter="secundario">Secundario</button>
+      <button class="filter-btn" data-filter="superior">Superior</button>
+    </div>
+
+    <!-- Grilla de juegos -->
+    <div class="games-grid" id="gamesGrid">
+
+      <!-- Juego 1 -->
+      <article class="game-card" data-level="primario secundario" data-tags="fracciones números" data-search="escoba fracciones entero combinación">
+        <div class="game-img" style="--game-color:#2d6a4f">
+          <div class="game-icon-wrap">
+            <span class="game-emoji">🧮</span>
+          </div>
+          <div class="game-level-badge">Primario / Secundario</div>
+        </div>
+        <div class="game-body">
+          <h3 class="game-title">La Escoba del Uno</h3>
+          <p class="game-desc">Juego de cartas matemático donde los jugadores combinan fracciones para formar el entero. Digitalización del juego tradicional "La Escoba" con intenciones didácticas explícitas.</p>
+          <div class="game-meta">
+            <div class="meta-item">
+              <strong>Contenidos:</strong> Fracciones, equivalencia, suma de fracciones
+            </div>
+            <div class="meta-item">
+              <strong>Intención didáctica:</strong> Construir la idea de fracción como parte de un entero y desarrollar estrategias de combinación numérica
+            </div>
+          </div>
+          <div class="game-tags">
+            <span class="tag">Fracciones</span>
+            <span class="tag">Números</span>
+            <span class="tag">Estrategia</span>
+          </div>
+
+          <!-- Botones de juego: local (mismo dispositivo) y en red (otro jugador a distancia) -->
+          <div class="game-play-buttons">
+            <a href="escoba-del-uno.html" class="btn btn-primary btn-sm game-btn">
+              Jugar (vs. IA o local)
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </a>
+            <a href="https://proyecto-inicial-v2-production.up.railway.app/" target="_blank" rel="noopener" class="btn btn-secondary-net btn-sm game-btn">
+              Jugar en Red
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 0 1 0 20M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+            </a>
+          </div>
+
+          <!-- Botón que despliega la propuesta didáctica curricular -->
+          <button class="btn-curricular-toggle" type="button" aria-expanded="false">
+            <span>Ver propuesta didáctica curricular</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="curricular-panel">
+            <p class="curricular-eyebrow">Diseño Curricular — Provincia de Corrientes — Nivel Primario</p>
+            <p><strong>Eje:</strong> Número y Operaciones — Número Racional (fracciones).</p>
+            <p><strong>Propósito didáctico:</strong> Propiciar situaciones de enseñanza que permitan a los alumnos avanzar en la construcción del sentido de las fracciones como relación parte-todo, explorando distintas escrituras equivalentes de la unidad mediante el juego reglado.</p>
+            <p><strong>Saberes que se ponen en juego:</strong> composición y descomposición de la unidad en fracciones de igual o distinto denominador; equivalencia de fracciones; anticipación y verificación de resultados; argumentación de las estrategias empleadas frente al grupo de pares.</p>
+            <p><strong>Orientación para el docente:</strong> se sugiere habilitar instancias de puesta en común luego de cada partida, donde los alumnos expliciten cómo supieron que una combinación de cartas formaba el entero, favoreciendo el pasaje de procedimientos empíricos a un trabajo más sistemático sobre la fracción.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Juego 2: Gato Multiplicativo -->
+      <article class="game-card" data-level="primario secundario" data-tags="multiplicación tablas cálculo" data-search="gato multiplicativo multiplicación tablas multiplicar ta-te-ti tateti">
+        <div class="game-img" style="--game-color:#b45309">
+          <div class="game-icon-wrap"><span class="game-emoji">✖️</span></div>
+          <div class="game-level-badge">Primario (4°,5°,6°) / 1° y 2° Secundario</div>
+        </div>
+        <div class="game-body">
+          <h3 class="game-title">Juego del Gato Multiplicativo</h3>
+          <p class="game-desc">Adaptación del clásico "Ta-Te-Ti" para reforzar el dominio de las tablas de multiplicar mediante el cálculo y la anticipación de jugadas.</p>
+          <div class="game-meta">
+            <div class="meta-item"><strong>Contenidos:</strong> Multiplicación, tablas, cálculo mental</div>
+            <div class="meta-item"><strong>Intención didáctica:</strong> Afianzar el cálculo multiplicativo automatizado y desarrollar pensamiento estratégico al anticipar jugadas</div>
+          </div>
+          <div class="game-tags">
+            <span class="tag">Multiplicación</span>
+            <span class="tag">Tablas</span>
+            <span class="tag">Cálculo mental</span>
+          </div>
+
+          <div class="game-play-buttons">
+            <a href="https://extraordinary-dodol-ad4245.netlify.app/" target="_blank" rel="noopener" class="btn btn-primary btn-sm game-btn">
+              Jugar
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </a>
+          </div>
+
+          <button class="btn-curricular-toggle" type="button" aria-expanded="false">
+            <span>Ver propuesta didáctica curricular</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="curricular-panel">
+            <p class="curricular-eyebrow">Diseño Curricular — Provincia de Corrientes — Nivel Primario (4°, 5° y 6° grado) y Nivel Secundario (1° y 2° año)</p>
+            <p><strong>Eje:</strong> Número y Operaciones — Operaciones con números naturales.</p>
+            <p><strong>Propósito didáctico:</strong> Generar un espacio lúdico de práctica genuina del cálculo multiplicativo, en el que el alumno deba apelar al repertorio de productos memorizados o a estrategias de cálculo para poder jugar, en lugar de resolver multiplicaciones descontextualizadas.</p>
+            <p><strong>Saberes que se ponen en juego:</strong> repertorio multiplicativo (tablas), propiedades de la multiplicación, cálculo mental, anticipación de jugadas a partir de relaciones numéricas, control del resultado propio y del adversario.</p>
+            <p><strong>Orientación para el docente:</strong> resulta valioso analizar junto a los alumnos qué productos resultan más difíciles de recordar y qué estrategias (dobles, descomposición, tablas conocidas) permiten resolverlos sin necesidad de memorización mecánica, articulando así el juego con la sistematización de las tablas de multiplicar.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="game-card" data-level="secundario" data-tags="álgebra ecuaciones" data-search="veintiuno 21 suma números enteros">
+        <div class="game-img" style="--game-color:#1a4a8a">
+          <div class="game-icon-wrap"><span class="game-emoji">🃏</span></div>
+          <div class="game-level-badge">Secundario</div>
+        </div>
+        <div class="game-body">
+          <h3 class="game-title">Veintiuno Matemático</h3>
+          <p class="game-desc">Adaptación del clásico juego de cartas 21 con variantes matemáticas que involucran operaciones con números enteros y racionales.</p>
+          <div class="game-meta">
+            <div class="meta-item"><strong>Contenidos:</strong> Números enteros, operaciones, estrategia</div>
+            <div class="meta-item"><strong>Intención didáctica:</strong> Desarrollar el cálculo mental y el pensamiento estratégico con números</div>
+          </div>
+          <div class="game-tags">
+            <span class="tag">Números enteros</span>
+            <span class="tag">Cálculo mental</span>
+          </div>
+          <button class="btn btn-outline btn-sm game-btn">
+            Próximamente
+          </button>
+        </div>
+      </article>
+
+      <!-- Juego 3 -->
+      <article class="game-card" data-level="primario" data-tags="geometría espacial" data-search="tangram geometría figuras espacial">
+        <div class="game-img" style="--game-color:#7b2d8b">
+          <div class="game-icon-wrap"><span class="game-emoji">🔷</span></div>
+          <div class="game-level-badge">Primario</div>
+        </div>
+        <div class="game-body">
+          <h3 class="game-title">Tangram Digital</h3>
+          <p class="game-desc">El clásico rompecabezas geométrico chino en versión digital interactiva. Los alumnos componen figuras con las 7 piezas del tangram y exploran relaciones geométricas.</p>
+          <div class="game-meta">
+            <div class="meta-item"><strong>Contenidos:</strong> Figuras geométricas, áreas, composición y descomposición</div>
+            <div class="meta-item"><strong>Intención didáctica:</strong> Explorar propiedades de las figuras geométricas y sus relaciones espaciales</div>
+          </div>
+          <div class="game-tags">
+            <span class="tag">Geometría</span>
+            <span class="tag">Espacial</span>
+          </div>
+          <button class="btn btn-outline btn-sm game-btn">Próximamente</button>
+        </div>
+      </article>
+
+      <!-- Juego 4 -->
+      <article class="game-card" data-level="secundario superior" data-tags="probabilidad estadística" data-search="dados probabilidad estadística azar">
+        <div class="game-img" style="--game-color:#8b4513">
+          <div class="game-icon-wrap"><span class="game-emoji">🎲</span></div>
+          <div class="game-level-badge">Secundario / Superior</div>
+        </div>
+        <div class="game-body">
+          <h3 class="game-title">Laboratorio de Dados</h3>
+          <p class="game-desc">Simulador de experimentos aleatorios con dados. Permite explorar la ley de los grandes números y conceptos fundamentales de probabilidad.</p>
+          <div class="game-meta">
+            <div class="meta-item"><strong>Contenidos:</strong> Probabilidad, estadística, ley de grandes números</div>
+            <div class="meta-item"><strong>Intención didáctica:</strong> Construir el concepto de probabilidad frecuencial mediante la experimentación</div>
+          </div>
+          <div class="game-tags">
+            <span class="tag">Probabilidad</span>
+            <span class="tag">Estadística</span>
+          </div>
+          <button class="btn btn-outline btn-sm game-btn">Próximamente</button>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="section-footer">
+      <!-- TODO: crear pages/juegos.html y cambiar el href de abajo -->
+      <a href="#juegos" class="btn btn-outline">Ver todos los juegos</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     LABORATORIO DE IDEAS
+═══════════════════════════════════════════════════ -->
+<section class="section lab-section" id="laboratorio">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">En construcción permanente</div>
+      <h2 class="section-title">Laboratorio de Ideas</h2>
+      <p class="section-desc">Espacio vivo donde conviven preguntas abiertas, proyectos en gestación, experiencias de aula y propuestas experimentales. Un lugar para pensar en voz alta.</p>
+    </div>
+
+    <div class="lab-grid">
+      <article class="lab-card lab-card-featured">
+        <div class="lab-card-header">
+          <span class="lab-type">🔬 Línea de investigación</span>
+          <span class="lab-status lab-status-active">En curso</span>
+        </div>
+        <h3>Digitalización de juegos matemáticos tradicionales</h3>
+        <p>¿Es posible trasladar un juego físico a un entorno digital preservando sus intenciones didácticas originales? Esta línea explora los desafíos y posibilidades de la digitalización de materiales concretos.</p>
+        <div class="lab-meta">
+          <span class="lab-tag">Juegos</span>
+          <span class="lab-tag">Tecnología</span>
+          <span class="lab-tag">Didáctica</span>
+        </div>
+      </article>
+
+      <article class="lab-card">
+        <div class="lab-card-header">
+          <span class="lab-type">❓ Pregunta abierta</span>
+          <span class="lab-status lab-status-open">Abierta</span>
+        </div>
+        <h3>¿Qué pierde un juego cuando se digitaliza?</h3>
+        <p>La manipulación física, el azar del mazo, la presencia del otro… ¿qué dimensiones didácticas se transforman al migrar al entorno digital?</p>
+        <div class="lab-meta">
+          <span class="lab-tag">Reflexión</span>
+          <span class="lab-tag">Juegos</span>
+        </div>
+      </article>
+
+      <article class="lab-card">
+        <div class="lab-card-header">
+          <span class="lab-type">🏫 Experiencia de aula</span>
+          <span class="lab-status lab-status-done">Realizada</span>
+        </div>
+        <h3>La Escoba del Uno en el aula: primeras implementaciones</h3>
+        <p>Relato y análisis de las primeras implementaciones del juego en clases de 2.° y 3.° año del secundario. Observaciones sobre estrategias espontáneas de los alumnos.</p>
+        <div class="lab-meta">
+          <span class="lab-tag">Fracciones</span>
+          <span class="lab-tag">Secundario</span>
+        </div>
+      </article>
+
+      <article class="lab-card">
+        <div class="lab-card-header">
+          <span class="lab-type">💡 Proyecto en desarrollo</span>
+          <span class="lab-status lab-status-progress">En desarrollo</span>
+        </div>
+        <h3>Banco de situaciones para el nivel superior</h3>
+        <p>Diseño de situaciones didácticas específicas para la formación docente inicial en matemática, centradas en la articulación entre teoría y práctica.</p>
+        <div class="lab-meta">
+          <span class="lab-tag">Nivel Superior</span>
+          <span class="lab-tag">Formación docente</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="section-footer">
+      <!-- TODO: crear pages/laboratorio.html y cambiar el href de abajo -->
+      <a href="#laboratorio" class="btn btn-outline">Explorar el laboratorio</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PROPUESTAS MATEMÁTICAS
+═══════════════════════════════════════════════════ -->
+<section class="section proposals-section" id="propuestas">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Secuencias didácticas</div>
+      <h2 class="section-title">Propuestas Matemáticas</h2>
+      <p class="section-desc">Banco de secuencias didácticas y actividades organizadas por nivel educativo, con objetivos, recursos y orientaciones para el docente.</p>
+    </div>
+
+    <div class="levels-tabs">
+      <button class="level-tab active" data-level="inicial">Nivel Inicial</button>
+      <button class="level-tab" data-level="primario">Nivel Primario</button>
+      <button class="level-tab" data-level="secundario">Nivel Secundario</button>
+      <button class="level-tab" data-level="superior">Nivel Superior</button>
+    </div>
+
+    <div class="proposals-container">
+      <!-- Inicial -->
+      <div class="proposals-panel active" data-panel="inicial">
+        <div class="proposals-grid">
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#f59e0b">
+              <span class="proposal-icon">🔢</span>
+              <span class="proposal-level">Inicial</span>
+            </div>
+            <h3>Conteo y cardinalidad</h3>
+            <p>Situaciones de conteo, correspondencia uno a uno y construcción del número natural en el nivel inicial.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Construir el concepto de número como cardinal de un conjunto</li>
+              <li><strong>Contenidos:</strong> Conteo, comparación, números del 1 al 10</li>
+              <li><strong>Recursos:</strong> Material concreto, fichas, juegos</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#10b981">
+              <span class="proposal-icon">🔵</span>
+              <span class="proposal-level">Inicial</span>
+            </div>
+            <h3>Formas y espacios</h3>
+            <p>Exploración de figuras geométricas en el entorno, clasificación y reconocimiento de formas básicas.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Reconocer y nombrar figuras geométricas básicas</li>
+              <li><strong>Contenidos:</strong> Círculo, cuadrado, triángulo, rectángulo</li>
+              <li><strong>Recursos:</strong> Bloques lógicos, figuras, cuerpos geométricos</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+        </div>
+      </div>
+
+      <!-- Primario -->
+      <div class="proposals-panel" data-panel="primario">
+        <div class="proposals-grid">
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#3b82f6">
+              <span class="proposal-icon">½</span>
+              <span class="proposal-level">Primario</span>
+            </div>
+            <h3>Introducción a las fracciones</h3>
+            <p>Secuencia de situaciones para construir el concepto de fracción como parte de un entero y como cociente.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Construir la noción de fracción desde situaciones concretas</li>
+              <li><strong>Contenidos:</strong> Fracción parte-todo, equivalencia, comparación</li>
+              <li><strong>Recursos:</strong> Juego "La Escoba del Uno", regletas de Cuisenaire</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#8b5cf6">
+              <span class="proposal-icon">✖</span>
+              <span class="proposal-level">Primario</span>
+            </div>
+            <h3>Multiplicación: sentidos y estrategias</h3>
+            <p>Diferentes sentidos de la multiplicación (suma reiterada, proporcionalidad, combinatoria) y estrategias de cálculo.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Construir los diferentes sentidos de la multiplicación</li>
+              <li><strong>Contenidos:</strong> Multiplicación, tablas, cálculo mental</li>
+              <li><strong>Recursos:</strong> Situaciones problemáticas, juegos de tablero</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+        </div>
+      </div>
+
+      <!-- Secundario -->
+      <div class="proposals-panel" data-panel="secundario">
+        <div class="proposals-grid">
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#ef4444">
+              <span class="proposal-icon">📈</span>
+              <span class="proposal-level">Secundario</span>
+            </div>
+            <h3>Funciones: del lenguaje cotidiano al algebraico</h3>
+            <p>Situaciones que permiten construir el concepto de función transitando por diferentes registros de representación.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Construir el concepto de función desde situaciones de variación</li>
+              <li><strong>Contenidos:</strong> Función lineal, representaciones, dominio, imagen</li>
+              <li><strong>Recursos:</strong> GeoGebra, tablas, gráficos, situaciones problemáticas</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#06b6d4">
+              <span class="proposal-icon">🎲</span>
+              <span class="proposal-level">Secundario</span>
+            </div>
+            <h3>Probabilidad y azar: ¿qué tan probable es?</h3>
+            <p>Introducción a la probabilidad desde situaciones de juego y experimentos aleatorios concretos.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Construir el concepto de probabilidad como herramienta para cuantificar el azar</li>
+              <li><strong>Contenidos:</strong> Experimento aleatorio, espacio muestral, probabilidad clásica</li>
+              <li><strong>Recursos:</strong> Dados, monedas, simuladores digitales</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+        </div>
+      </div>
+
+      <!-- Superior -->
+      <div class="proposals-panel" data-panel="superior">
+        <div class="proposals-grid">
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#84cc16">
+              <span class="proposal-icon">🎓</span>
+              <span class="proposal-level">Superior</span>
+            </div>
+            <h3>Didáctica de las fracciones: análisis didáctico</h3>
+            <p>Propuesta para la formación docente: análisis didáctico del campo de las fracciones desde la perspectiva de la TSD.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Analizar situaciones de enseñanza de las fracciones desde marcos teóricos didácticos</li>
+              <li><strong>Contenidos:</strong> TSD, transposición didáctica, obstáculos epistemológicos</li>
+              <li><strong>Recursos:</strong> Bibliografía específica, análisis de libros de texto</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+          <article class="proposal-card">
+            <div class="proposal-header" style="--prop-color:#f97316">
+              <span class="proposal-icon">🔭</span>
+              <span class="proposal-level">Superior</span>
+            </div>
+            <h3>Resolución de problemas en la formación docente</h3>
+            <p>Taller de resolución de problemas matemáticos como contenido y como metodología para la formación de futuros docentes.</p>
+            <ul class="proposal-data">
+              <li><strong>Objetivos:</strong> Desarrollar competencias de resolución de problemas y su didáctica</li>
+              <li><strong>Contenidos:</strong> Estrategias de resolución, metacognición, comunicación matemática</li>
+              <li><strong>Recursos:</strong> Problemas abiertos, trabajo colaborativo</li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline">Ver propuesta completa</a>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-footer">
+      <!-- TODO: crear pages/propuestas.html y cambiar el href de abajo -->
+      <a href="#propuestas" class="btn btn-outline">Ver todas las propuestas</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     REPOSITORIO
+═══════════════════════════════════════════════════ -->
+<section class="section repo-section" id="repositorio">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Biblioteca digital</div>
+      <h2 class="section-title">Repositorio</h2>
+      <p class="section-desc">Materiales organizados y curados: artículos, libros, videos, conferencias y documentos de referencia para la enseñanza de la matemática.</p>
+    </div>
+
+    <div class="repo-categories">
+      <div class="repo-cat-card">
+        <div class="repo-cat-icon">📄</div>
+        <h3>Artículos</h3>
+        <p>Publicaciones académicas sobre didáctica de la matemática y educación</p>
+        <span class="repo-count">24 recursos</span>
+      </div>
+      <div class="repo-cat-card">
+        <div class="repo-cat-icon">📚</div>
+        <h3>Libros</h3>
+        <p>Obras de referencia sobre didáctica, pedagogía y matemática educativa</p>
+        <span class="repo-count">12 recursos</span>
+      </div>
+      <div class="repo-cat-card">
+        <div class="repo-cat-icon">🎥</div>
+        <h3>Videos y conferencias</h3>
+        <p>Conferencias, clases y materiales audiovisuales sobre enseñanza de la matemática</p>
+        <span class="repo-count">18 recursos</span>
+      </div>
+      <div class="repo-cat-card">
+        <div class="repo-cat-icon">📊</div>
+        <h3>Presentaciones</h3>
+        <p>Diapositivas y materiales de clases y ponencias</p>
+        <span class="repo-count">9 recursos</span>
+      </div>
+      <div class="repo-cat-card">
+        <div class="repo-cat-icon">⬇️</div>
+        <h3>Descargables</h3>
+        <p>Materiales para imprimir y usar en el aula</p>
+        <span class="repo-count">31 recursos</span>
+      </div>
+      <div class="repo-cat-card">
+        <div class="repo-cat-icon">🎓</div>
+        <h3>Formación docente</h3>
+        <p>Recursos específicos para la formación inicial y continua de docentes</p>
+        <span class="repo-count">15 recursos</span>
+      </div>
+    </div>
+
+    <div class="section-footer">
+      <!-- TODO: crear pages/repositorio.html y cambiar el href de abajo -->
+      <a href="#repositorio" class="btn btn-outline">Ir al repositorio completo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     INVESTIGACIÓN
+═══════════════════════════════════════════════════ -->
+<section class="section research-section" id="investigacion">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Producción académica</div>
+      <h2 class="section-title">Investigación</h2>
+      <p class="section-desc">Publicaciones, ponencias, proyectos de investigación y producciones académicas en el campo de la didáctica de la matemática.</p>
+    </div>
+
+    <div class="research-grid">
+      <article class="research-card research-featured">
+        <div class="research-type">Tesis de maestría — En curso</div>
+        <h3>Educación Virtual en el Nivel Superior</h3>
+        <p>Maestría en Educación Virtual. Investigación sobre el diseño de entornos virtuales de aprendizaje para la enseñanza de la matemática en el nivel superior, con foco en la mediación tecnológica y las situaciones didácticas.</p>
+        <div class="research-meta">
+          <span>🎓 Maestría en Educación Virtual</span>
+          <span>📅 En curso</span>
+        </div>
+      </article>
+
+      <article class="research-card">
+        <div class="research-type">Ponencia</div>
+        <h3>Digitalización de juegos matemáticos: posibilidades y tensiones</h3>
+        <p>Análisis de la transición de materiales concretos a entornos digitales preservando las intenciones didácticas originales.</p>
+        <div class="research-meta">
+          <span>📍 Congreso de Educación Matemática</span>
+        </div>
+      </article>
+
+      <article class="research-card">
+        <div class="research-type">Artículo</div>
+        <h3>El juego como situación didáctica en la enseñanza de las fracciones</h3>
+        <p>Fundamentación teórica y análisis de situaciones de juego desde la perspectiva de la Teoría de las Situaciones Didácticas.</p>
+        <div class="research-meta">
+          <span>📄 En elaboración</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="section-footer">
+      <!-- TODO: crear pages/investigacion.html y cambiar el href de abajo -->
+      <a href="#investigacion" class="btn btn-outline">Ver producción académica completa</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CONTACTO
+═══════════════════════════════════════════════════ -->
+<section class="section contact-section" id="contacto">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Comunicación</div>
+      <h2 class="section-title">Contacto</h2>
+      <p class="section-desc">¿Tenés una propuesta, pregunta o querés colaborar? Escribime.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Prof. Cristian Romero</h3>
+        <p>Estoy disponible para consultas sobre recursos didácticos, colaboraciones académicas y propuestas de trabajo conjunto en el campo de la educación matemática.</p>
+        <div class="contact-links">
+          <a href="mailto:contacto@lausinamatematica.edu.ar" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            contacto@lausinamatematica.edu.ar
+          </a>
+          <a href="#" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+          <a href="#" class="contact-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+            Twitter / X
+          </a>
+        </div>
+      </div>
+
+      <form class="contact-form" id="contactForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fname">Nombre</label>
+            <input type="text" id="fname" name="nombre" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-group">
+            <label for="femail">Email</label>
+            <input type="email" id="femail" name="email" placeholder="tu@email.com" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="fsubject">Asunto</label>
+          <select id="fsubject" name="asunto">
+            <option value="">Seleccioná un asunto</option>
+            <option>Consulta sobre recursos didácticos</option>
+            <option>Propuesta de colaboración</option>
+            <option>Consulta sobre investigación</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fmsg">Mensaje</label>
+          <textarea id="fmsg" name="mensaje" rows="5" placeholder="Escribí tu mensaje…" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          Enviar mensaje
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+        <p class="form-msg" id="formMsg" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand">
+          <div class="brand-icon">∑</div>
+          <div class="brand-text">
+            <span class="brand-name">La Usina Matemática</span>
+            <span class="brand-tagline">Laboratorio Didáctico</span>
+          </div>
+        </div>
+        <p class="footer-desc">Laboratorio de Situaciones Didácticas y Recursos para la Enseñanza de la Matemática.</p>
+        <p class="footer-author">Prof. Cristian Romero</p>
+      </div>
+      <div class="footer-nav">
+        <h4>Secciones</h4>
+        <ul>
+          <li><a href="#juegos">Juegos Matemáticos</a></li>
+          <li><a href="#laboratorio">Laboratorio de Ideas</a></li>
+          <li><a href="#propuestas">Propuestas Didácticas</a></li>
+          <li><a href="#repositorio">Repositorio</a></li>
+          <li><a href="#investigacion">Investigación</a></li>
+        </ul>
+      </div>
+      <div class="footer-nav">
+        <h4>Marco teórico</h4>
+        <ul>
+          <li><a href="#">Teoría de las Situaciones Didácticas</a></li>
+          <li><a href="#">Resolución de problemas</a></li>
+          <li><a href="#">Transposición didáctica</a></li>
+          <li><a href="#">Contrato didáctico</a></li>
+        </ul>
+      </div>
+      <div class="footer-nav">
+        <h4>Recursos</h4>
+        <ul>
+          <li><a href="escoba-del-uno.html">La Escoba del Uno</a></li>
+          <li><a href="https://extraordinary-dodol-ad4245.netlify.app/" target="_blank" rel="noopener">Gato Multiplicativo</a></li>
+          <li><a href="#repositorio">Biblioteca digital</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 La Usina Matemática — Prof. Cristian Romero. Todos los derechos reservados.</p>
+      <p class="footer-formula" aria-hidden="true">∑ · ∫ · √ · π · ∞</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Botón volver arriba -->
+<button class="back-to-top" id="backToTop" aria-label="Volver al inicio">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

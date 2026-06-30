@@ -1,0 +1,9 @@
+{
+  "name": "la-usina-matematica",
+  "version": "1.0.0",
+  "description": "La Usina Matemática — Laboratorio de Situaciones Didácticas y Recursos para la Enseñanza de la Matemática. Prof. Cristian Romero.",
+  "scripts": {
+    "start": "npx --yes serve -s . -l ${PORT:-3000}"
+  },
+  "license": "UNLICENSED"
+}

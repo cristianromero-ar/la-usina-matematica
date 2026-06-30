@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>La Escoba del Uno · Juego de fracciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LA ESCOBA DEL UNO — style.css
+   Sistema de diseño: tapete de fieltro + cartas de fracciones
+   dibujadas íntegramente con CSS Grid (sin imágenes).
+============================================================ */
+
+/* ---------- 1. TOKENS ---------- */
+:root{
+  /* Paleta */
+  --felt-0:#102b22;          /* fondo más oscuro del tapete */
+  --felt-1:#1b4332;          /* tapete base */
+  --felt-2:#2d6a4f;          /* acentos de tapete / UI */
+  --cream:#f8f4e9;           /* cartas */
+  --cream-dim:#ece4d0;
+  --ink:#17231d;             /* texto principal sobre crema */
+  --ink-soft:#4d5c52;
+  --gold:#d4a24c;            /* victoria / escoba / acento cálido */
+  --gold-deep:#b9842f;
+  --blue-deck:#2c5f8a;
+  --blue-deck-deep:#1f4566;
+  --red-deck:#a8392c;
+  --red-deck-deep:#852c22;
+  --danger:#c1432f;
+  --ok:#3f8f5f;
+
+  /* Tipografía */
+  --font-display:'Fraunces', Georgia, serif;
+  --font-body:'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Geometría */
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:22px;
+  --shadow-card: 0 2px 0 rgba(0,0,0,.18), 0 8px 16px -6px rgba(0,0,0,.45);
+  --shadow-card-hover: 0 4px 0 rgba(0,0,0,.18), 0 14px 26px -8px rgba(0,0,0,.5);
+  --shadow-panel: 0 20px 60px -20px rgba(0,0,0,.6);
+
+  color-scheme: dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--cream);
+  background:var(--felt-0);
+  overflow-x:hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+h1,h2,h3{ font-family:var(--font-display); margin:0; }
+p{ margin:0; }
+ul,ol{ margin:0; padding:0; list-style:none; }
+button{ font-family:inherit; }
+svg{ display:block; width:1em; height:1em; }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+}
+
+/* Fondo de tapete con textura sutil radial + viñeta */
+.felt-backdrop{
+  position:fixed; inset:0; z-index:-1;
+  background:
+    radial-gradient(120% 90% at 50% -10%, var(--felt-2) 0%, var(--felt-1) 45%, var(--felt-0) 100%);
+}
+.felt-backdrop::after{
+  content:"";
+  position:absolute; inset:0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 2px, transparent 2px 14px);
+  mix-blend-mode:overlay;
+}
+
+/* ---------- 2. ESTRUCTURA DE PANTALLAS ---------- */
+.screen{
+  display:none;
+  min-height:100dvh;
+  width:100%;
+}
+.screen.is-active{ display:block; }
+
+/* ---------- 3. MENÚ PRINCIPAL ---------- */
+.screen--menu.is-active{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 16px;
+}
+.menu-card{
+  width:100%;
+  max-width:640px;
+  background:linear-gradient(180deg, rgba(248,244,233,.05), rgba(248,244,233,.02));
+  border:1px solid rgba(248,244,233,.12);
+  border-radius:var(--radius-l);
+  padding:40px clamp(20px,5vw,48px);
+  box-shadow:var(--shadow-panel);
+  animation: rise .5s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes rise{ from{ opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
+
+.menu-header{ text-align:center; margin-bottom:32px; }
+.menu-eyebrow{
+  font-size:.78rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-weight:600;
+  margin-bottom:10px;
+}
+.menu-title{
+  font-size:clamp(2.4rem, 7vw, 3.6rem);
+  font-weight:900;
+  line-height:.96;
+  letter-spacing:-.01em;
+}
+.menu-title span{ color:var(--gold); font-style:italic; font-weight:600; }
+.menu-sub{
+  margin-top:14px;
+  color:var(--cream-dim);
+  font-size:1rem;
+  max-width:42ch;
+  margin-inline:auto;
+  line-height:1.5;
+}
+.menu-credit{
+  margin-top:10px;
+  font-size:.78rem;
+  color:rgba(248,244,233,.4);
+  letter-spacing:.03em;
+}
+.menu-credit strong{
+  color:rgba(248,244,233,.65);
+  font-weight:600;
+}
+
+.menu-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:22px 18px;
+}
+.option-group{
+  border:none; margin:0; padding:0;
+  grid-column:span 1;
+}
+.option-group--switch{ grid-column:1 / -1; }
+
+/* Campos de nombre de jugadores (generados dinámicamente) */
+.names-grid{
+  display:flex; flex-wrap:wrap; gap:10px;
+}
+.name-field{
+  flex:1 1 160px;
+  display:flex; flex-direction:column; gap:4px;
+}
+.name-field label{
+  font-size:.7rem; color:var(--cream-dim); font-weight:600;
+}
+.name-field input{
+  background:rgba(248,244,233,.07);
+  border:1.5px solid rgba(248,244,233,.18);
+  border-radius:var(--radius-s);
+  color:var(--cream);
+  padding:9px 12px;
+  font-size:.9rem;
+  font-family:inherit;
+  transition:border-color .15s, background .15s;
+}
+.name-field input::placeholder{ color:rgba(248,244,233,.35); }
+.name-field input:focus{
+  outline:none;
+  border-color:var(--gold);
+  background:rgba(248,244,233,.11);
+}
+.option-group legend{
+  font-size:.72rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--cream-dim);
+  font-weight:700;
+  margin-bottom:9px;
+  padding:0;
+}
+
+.pill-row{ display:flex; flex-wrap:wrap; gap:8px; }
+.pill{
+  flex:1 1 auto;
+  min-width:54px;
+  cursor:pointer;
+  background:rgba(248,244,233,.06);
+  border:1.5px solid rgba(248,244,233,.16);
+  color:var(--cream);
+  border-radius:var(--radius-m);
+  padding:10px 14px;
+  font-size:.92rem;
+  font-weight:600;
+  text-align:center;
+  transition:background .15s, border-color .15s, transform .1s;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.pill small{ font-weight:500; opacity:.7; font-size:.7rem; }
+.pill:hover{ background:rgba(248,244,233,.12); }
+.pill:active{ transform:scale(.97); }
+.pill.is-selected{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:var(--ink);
+}
+.pill--blue.is-selected{ background:var(--blue-deck); border-color:var(--blue-deck); color:#fff; }
+.pill--red.is-selected{ background:var(--red-deck); border-color:var(--red-deck); color:#fff; }
+.pill--mixed.is-selected{
+  background:linear-gradient(90deg, var(--blue-deck) 50%, var(--red-deck) 50%);
+  border-color:transparent; color:#fff;
+}
+
+.switch{ display:flex; align-items:center; gap:12px; cursor:pointer; }
+.switch input{ position:absolute; opacity:0; width:0; height:0; }
+.switch-track{
+  width:46px; height:26px; border-radius:999px;
+  background:rgba(248,244,233,.18);
+  position:relative; flex:none;
+  transition:background .2s;
+}
+.switch-thumb{
+  position:absolute; top:3px; left:3px;
+  width:20px; height:20px; border-radius:50%;
+  background:var(--cream);
+  transition:transform .2s cubic-bezier(.3,.8,.3,1);
+}
+.switch input:checked + .switch-track{ background:var(--ok); }
+.switch input:checked + .switch-track .switch-thumb{ transform:translateX(20px); }
+.switch-label{ font-size:.88rem; color:var(--cream-dim); }
+.switch input:focus-visible + .switch-track{ outline:2px solid var(--gold); outline-offset:2px; }
+
+.menu-actions{
+  margin-top:34px;
+  display:flex; gap:12px; flex-wrap:wrap;
+}
+.btn{
+  font-weight:700;
+  font-size:.96rem;
+  border-radius:var(--radius-m);
+  border:1.5px solid transparent;
+  padding:14px 22px;
+  cursor:pointer;
+  transition:transform .12s, filter .15s, background .15s;
+  flex:1 1 auto;
+}
+.btn:active{ transform:scale(.97); }
+.btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+.btn--primary{ background:var(--gold); color:var(--ink); }
+.btn--primary:hover{ filter:brightness(1.07); }
+.btn--primary:disabled{ background:rgba(248,244,233,.14); color:rgba(248,244,233,.4); cursor:not-allowed; }
+.btn--ghost{ background:transparent; border-color:rgba(248,244,233,.3); color:var(--cream); }
+.btn--ghost:hover{ background:rgba(248,244,233,.08); }
+.btn--text{ background:transparent; border-color:transparent; color:var(--cream-dim); flex:none; text-decoration:underline; text-underline-offset:3px; }
+.btn--text:hover{ color:var(--cream); }
+.btn--sm{ padding:10px 16px; font-size:.84rem; flex:none; }
+
+/* ---------- 4. INSTRUCCIONES ---------- */
+.screen--help.is-active{
+  display:flex; align-items:center; justify-content:center;
+  padding:32px 16px;
+}
+.help-card{
+  width:100%; max-width:720px;
+  background:linear-gradient(180deg, rgba(248,244,233,.05), rgba(248,244,233,.02));
+  border:1px solid rgba(248,244,233,.12);
+  border-radius:var(--radius-l);
+  padding:36px clamp(20px,5vw,44px);
+  box-shadow:var(--shadow-panel);
+  max-height:88dvh; overflow-y:auto;
+}
+.help-card h2{ font-size:1.8rem; margin-bottom:22px; }
+.help-grid{ display:grid; gap:20px; grid-template-columns:1fr 1fr; }
+.help-block{ background:rgba(248,244,233,.04); border-radius:var(--radius-m); padding:16px 18px; }
+.help-block:first-child, .help-block:nth-child(5){ grid-column:1/-1; }
+.help-block h3{ font-size:.95rem; color:var(--gold); margin-bottom:8px; }
+.help-block p, .help-block li{ font-size:.9rem; line-height:1.55; color:var(--cream-dim); }
+.help-block ol{ padding-left:1.1em; list-style:decimal; display:flex; flex-direction:column; gap:4px; }
+.example-list{ display:flex; flex-direction:column; gap:6px; }
+.frac{
+  display:inline-block; background:rgba(212,162,76,.18); color:var(--gold);
+  font-weight:700; padding:1px 7px; border-radius:6px; font-size:.85em;
+}
+.help-card .btn{ margin-top:26px; width:100%; }
+
+/* ---------- 5. PANTALLA DE JUEGO — LAYOUT GENERAL ---------- */
+.screen--game.is-active{
+  display:grid;
+  grid-template-columns: 1fr 220px;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas:
+    "topbar  topbar"
+    "rivals  score"
+    "table   score"
+    "hand    hand";
+  min-height:100dvh;
+  gap:0;
+}
+
+.game-topbar{
+  grid-area:topbar;
+  display:flex; align-items:center; gap:14px;
+  padding:12px 20px;
+  background:rgba(16,43,34,.55);
+  border-bottom:1px solid rgba(248,244,233,.1);
+  backdrop-filter:blur(6px);
+}
+.icon-btn{
+  width:38px; height:38px; border-radius:999px;
+  background:rgba(248,244,233,.08);
+  border:1px solid rgba(248,244,233,.15);
+  color:var(--cream);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; flex:none;
+  transition:background .15s;
+}
+.icon-btn:hover{ background:rgba(248,244,233,.16); }
+.icon-btn svg{ width:18px; height:18px; }
+.game-logo{ font-size:1.2rem; font-weight:700; flex:1; }
+.game-logo span{ color:var(--gold); font-style:italic; font-weight:600; }
+.game-topbar-right{ display:flex; align-items:center; gap:16px; }
+.switch--compact .switch-label{ display:none; }
+@media (min-width:760px){ .switch--compact .switch-label{ display:inline; font-size:.78rem; } }
+.deck-count{
+  display:flex; align-items:center; gap:6px;
+  background:rgba(248,244,233,.08);
+  border:1px solid rgba(248,244,233,.15);
+  border-radius:999px; padding:7px 13px;
+  font-weight:700; font-size:.85rem;
+}
+.deck-count svg{ width:18px; height:18px; color:var(--gold); }
+
+/* Rivales */
+.rivals-row{
+  grid-area:rivals;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:14px 20px 4px;
+}
+.rival-card{
+  display:flex; align-items:center; gap:10px;
+  background:rgba(248,244,233,.05);
+  border:1px solid rgba(248,244,233,.1);
+  border-radius:var(--radius-m);
+  padding:8px 14px;
+  transition:border-color .2s, background .2s;
+}
+.rival-card.is-active{
+  border-color:var(--gold);
+  background:rgba(212,162,76,.1);
+}
+.rival-avatar{
+  width:34px; height:34px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:.85rem;
+  background:var(--felt-2); color:var(--cream);
+  flex:none;
+}
+.rival-card.is-active .rival-avatar{ background:var(--gold); color:var(--ink); }
+.rival-info{ display:flex; flex-direction:column; line-height:1.25; }
+.rival-name{ font-size:.84rem; font-weight:700; }
+.rival-meta{ font-size:.72rem; color:var(--cream-dim); }
+
+/* Mesa */
+.table-area{
+  grid-area:table;
+  display:flex; align-items:center; justify-content:center;
+  padding:14px 20px;
+  min-height:0;
+}
+.table-felt{
+  width:100%; height:100%;
+  min-height:220px;
+  background:radial-gradient(120% 140% at 50% 50%, var(--felt-2) 0%, var(--felt-1) 70%, var(--felt-0) 130%);
+  border:2px solid rgba(248,244,233,.12);
+  border-radius:28px;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.4), var(--shadow-panel);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px;
+  padding:20px;
+  position:relative;
+}
+
+/* Etiquetas que distinguen claramente la zona de mesa de la zona de mano */
+.zone-tag{
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:4px 12px;
+  border-radius:999px;
+  flex:none;
+}
+.zone-tag--table{
+  position:absolute;
+  top:14px; left:50%;
+  transform:translateX(-50%);
+  background:rgba(248,244,233,.12);
+  border:1px solid rgba(248,244,233,.22);
+  color:var(--cream-dim);
+}
+.zone-tag--hand{
+  background:var(--gold);
+  color:var(--ink);
+}
+.table-status{
+  font-size:.86rem;
+  color:var(--cream-dim);
+  text-align:center;
+  min-height:1.3em;
+  font-weight:600;
+  margin-top:22px; /* deja lugar a la etiqueta "Mesa" posicionada arriba, para que no se solapen */
+}
+.table-cards{
+  display:flex; flex-wrap:wrap; gap:14px;
+  align-items:center; justify-content:center;
+}
+.sum-tray{
+  font-family:var(--font-display);
+  font-size:1.05rem;
+  color:var(--gold);
+  text-align:center;
+  min-height:1.4em;
+  font-weight:600;
+}
+
+/* Marcador lateral */
+.scoreboard{
+  grid-area:score;
+  padding:14px 16px;
+  border-left:1px solid rgba(248,244,233,.1);
+  background:rgba(16,43,34,.3);
+  overflow-y:auto;
+}
+.scoreboard h2{
+  font-size:.74rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--cream-dim); margin-bottom:12px; font-weight:700;
+}
+#scoreboard-list{ display:flex; flex-direction:column; gap:8px; }
+.score-row{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px;
+  background:rgba(248,244,233,.05);
+  border-radius:var(--radius-s);
+  padding:8px 10px;
+  border:1px solid transparent;
+  transition:border-color .2s;
+  font-size:.84rem;
+}
+.score-row.is-active{ border-color:var(--gold); }
+.score-name{ font-weight:700; display:flex; align-items:center; gap:6px; }
+.score-points{ font-weight:800; color:var(--gold); font-variant-numeric:tabular-nums; }
+.score-brooms{ font-size:.7rem; color:var(--cream-dim); }
+
+/* Mano del jugador + acciones */
+.player-zone{
+  grid-area:hand;
+  padding:14px 20px 22px;
+  background:linear-gradient(180deg, rgba(212,162,76,.07), rgba(212,162,76,.03) 40%, transparent);
+  border-top:2px solid rgba(212,162,76,.35);
+}
+.player-zone-head{
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:10px 14px;
+  margin-bottom:12px;
+}
+.player-zone-name{ font-weight:800; font-size:1rem; flex:1; }
+.player-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+.hand-cards{
+  display:flex; gap:14px; flex-wrap:wrap;
+  justify-content:center;
+  min-height:108px;
+}
+
+/* ---------- 6. CARTAS DE FRACCIÓN (CSS Grid puro) ---------- */
+.frac-card{
+  --w:84px; --h:118px;
+  width:var(--w); height:var(--h);
+  background:var(--cream);
+  border-radius:10px;
+  box-shadow:var(--shadow-card);
+  padding:8px;
+  display:flex; flex-direction:column; gap:6px;
+  cursor:pointer;
+  border:2px solid rgba(0,0,0,.06);
+  transition:transform .16s cubic-bezier(.3,.7,.3,1), box-shadow .16s, border-color .16s;
+  position:relative;
+  flex:none;
+  user-select:none;
+}
+.frac-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-card-hover); }
+.frac-card:active{ transform:translateY(-2px) scale(.98); }
+.frac-card:focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
+
+.frac-card.is-selected{
+  transform:translateY(-12px);
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(212,162,76,.35), var(--shadow-card-hover);
+}
+.frac-card.is-disabled{ opacity:.4; cursor:not-allowed; pointer-events:none; }
+.frac-card.is-removing{
+  animation: sweepUp .55s cubic-bezier(.5,0,.5,1) forwards;
+}
+@keyframes sweepUp{
+  0%{ transform:translateY(0) scale(1) rotate(0); opacity:1; }
+  60%{ transform:translateY(-70px) scale(.85) rotate(8deg); opacity:.85; }
+  100%{ transform:translateY(-160px) scale(.5) rotate(16deg); opacity:0; }
+}
+.frac-card.is-discarding{
+  animation: dropDown .4s ease-in forwards;
+}
+@keyframes dropDown{
+  to{ transform:translateY(40px) scale(.7); opacity:0; }
+}
+.frac-card.is-dealt{
+  animation: dealIn .35s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes dealIn{
+  from{ opacity:0; transform:translateY(-16px) scale(.85) rotate(-6deg); }
+  to{ opacity:1; transform:none; }
+}
+
+/* Top: cabecera con valor visible solo en modo aprendizaje */
+.frac-card-label{
+  font-size:.62rem;
+  font-weight:800;
+  color:var(--ink-soft);
+  text-align:center;
+  letter-spacing:.02em;
+  height:.9em;
+}
+
+/* El cuerpo de la carta: un rectángulo dividido en N celdas iguales vía grid */
+.frac-shape{
+  flex:1 1 0%;
+  width:100%;
+  min-width:0;
+  min-height:0;
+  display:grid;
+  gap:2px;
+  border-radius:5px;
+  overflow:hidden;
+  border:1.5px solid var(--ink);
+  background:var(--ink);
+  position:relative;
+}
+.frac-cell{
+  background:var(--cream-dim);
+  transition:background .1s;
+  min-width:0;
+  min-height:0;
+}
+.frac-cell.is-filled{
+  background:var(--cell-color, var(--blue-deck));
+}
+
+/* Disposición de celdas según denominador (mosaicos equilibrados) */
+.frac-shape[data-den="2"]{ grid-template-columns:1fr 1fr; grid-template-rows:1fr; }
+.frac-shape[data-den="3"]{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr; }
+.frac-shape[data-den="4"]{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
+.frac-shape[data-den="6"]{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr 1fr; }
+.frac-shape[data-den="8"]{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr 1fr 1fr; }
+.frac-shape[data-den="9"]{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr 1fr 1fr; }
+
+/* Mazo: color de fondo de carta según mazo */
+.frac-card.deck-blue .frac-cell.is-filled{ --cell-color:var(--blue-deck); }
+.frac-card.deck-red  .frac-cell.is-filled{ --cell-color:var(--red-deck); }
+.frac-card.deck-blue{ border-color: rgba(44,95,138,.35); }
+.frac-card.deck-red{ border-color: rgba(168,57,44,.35); }
+.frac-card.deck-blue .frac-card-corner{ background:var(--blue-deck); }
+.frac-card.deck-red .frac-card-corner{ background:var(--red-deck); }
+
+.frac-card-corner{
+  position:absolute; top:-4px; right:-4px;
+  width:10px; height:10px; border-radius:50%;
+  border:2px solid var(--cream);
+}
+
+/* Botón "comparar": aparece en cartas de mesa cuando hay carta de mano elegida.
+   Permite superponer esa carta como referencia visual, sin que sea una jugada. */
+.compare-btn{
+  position:absolute;
+  bottom:-9px; left:50%;
+  transform:translateX(-50%);
+  width:26px; height:26px;
+  border-radius:50%;
+  background:var(--felt-2);
+  border:2px solid var(--cream);
+  color:var(--cream);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  box-shadow:0 3px 8px rgba(0,0,0,.4);
+  transition:background .15s, transform .12s;
+  z-index:3;
+}
+.compare-btn svg{ width:13px; height:13px; }
+.compare-btn:hover{ background:var(--gold); color:var(--ink); transform:translateX(-50%) scale(1.08); }
+.frac-card.is-comparing .compare-btn{
+  background:var(--gold); color:var(--ink);
+  transform:translateX(-50%) scale(0.59); /* compensa el scale(1.7) de la carta padre */
+}
+
+/* Tarjeta activa en modo comparación: borde distintivo para diferenciarla
+   de la selección normal de jugada (dorado/verde). */
+.frac-card.is-comparing{
+  border-color:rgba(212,162,76,.9);
+  box-shadow:0 0 0 3px rgba(212,162,76,.25), 0 20px 40px -10px rgba(0,0,0,.6);
+  transform:scale(1.7);
+  transform-origin:center bottom;
+  z-index:10;
+  transition:transform .18s cubic-bezier(.3,.8,.3,1), box-shadow .18s;
+}
+.frac-card.is-comparing:hover{ transform:scale(1.7); } /* evita que el hover normal compita con el zoom */
+
+/* Capa de superposición: mismo tamaño y posición exacta que el rectángulo de
+   fracción de la carta de mesa (no de toda la carta), dibujada en un tono más
+   claro para distinguir cuál es la carta "de encima". */
+.frac-overlay{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:2;
+  border-radius:4px;
+  overflow:hidden;
+}
+.frac-shape--overlay{
+  width:100%; height:100%;
+  display:grid; gap:2px;
+  border:1.5px dashed rgba(23,35,29,.55);
+  border-radius:5px;
+  overflow:hidden;
+  background:rgba(255,255,255,.16);
+}
+.frac-shape--overlay .frac-cell{ background:transparent; }
+.frac-shape--overlay .frac-cell.is-filled{
+  background:var(--overlay-color, rgba(212,162,76,.55));
+}
+.frac-card.deck-blue .frac-shape--overlay .frac-cell.is-filled{ --overlay-color: rgba(212,162,76,.6); }
+.frac-card.deck-red .frac-shape--overlay .frac-cell.is-filled{ --overlay-color: rgba(212,162,76,.6); }
+
+/* Tamaño compacto para cartas de rivales (mini) */
+.frac-card.is-mini{ --w:30px; --h:42px; padding:3px; border-radius:6px; cursor:default; }
+.frac-card.is-mini .frac-card-label{ display:none; }
+.frac-card.is-mini .frac-shape{ gap:1px; border-width:1px; }
+
+/* Carta boca abajo: usada para la mano de la IA mientras decide su jugada,
+   así no se revela información que en el juego real estaría oculta. */
+.frac-card--back{
+  cursor:default;
+  background:linear-gradient(135deg, var(--felt-2) 0%, var(--felt-1) 60%, var(--felt-0) 100%);
+  border:2px solid rgba(248,244,233,.18);
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.frac-card--back::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:repeating-linear-gradient(135deg, rgba(248,244,233,.05) 0 6px, transparent 6px 12px);
+}
+.frac-card-back-mark{
+  font-family:var(--font-display);
+  font-weight:700; font-style:italic;
+  font-size:1.6rem;
+  color:rgba(248,244,233,.35);
+}
+
+/* ---------- 7. PANEL DE JUGADA DE LA IA ---------- */
+/* Aparece centrado sobre la mesa cuando la IA arma el entero.
+   Muestra las cartas que eligió para que el jugador humano pueda
+   revisarlas con calma antes de que desaparezcan. */
+.ai-play-panel{
+  position:fixed;
+  left:50%; top:50%;
+  transform:translate(-50%, -50%) scale(.88);
+  z-index:85;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .28s, transform .28s cubic-bezier(.2,.9,.3,1.1);
+  min-width:280px; max-width:min(90vw, 520px);
+}
+.ai-play-panel.is-visible{
+  opacity:1;
+  transform:translate(-50%, -50%) scale(1);
+  pointer-events:auto;
+}
+.ai-play-panel-inner{
+  background:linear-gradient(160deg, rgba(22,48,36,.97), rgba(16,43,34,.97));
+  border:1.5px solid rgba(212,162,76,.55);
+  border-radius:var(--radius-l);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.8), 0 0 0 1px rgba(212,162,76,.15);
+  padding:22px 24px 24px;
+  backdrop-filter:blur(8px);
+}
+.ai-play-panel-title{
+  font-family:var(--font-body);
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin:0 0 16px;
+  text-align:center;
+}
+.ai-play-panel-cards{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
+  align-items:flex-end;
+}
+/* Las cartas dentro del panel son un poco más grandes que las miniaturas
+   pero más pequeñas que las de la mano, para que entren varias */
+.ai-play-panel-cards .frac-card{
+  --w:72px; --h:100px;
+  cursor:default;
+}
+.ai-play-panel-cards .frac-card:hover{ transform:none; }
+
+/* separador visual "+" entre cartas */
+.ai-play-plus{
+  color:var(--cream-dim);
+  font-size:1.3rem;
+  font-weight:700;
+  align-self:center;
+  flex:none;
+  opacity:.7;
+}
+
+/* ---------- 8. MENSAJES / TOAST ---------- */
+.toast{
+  position:fixed;
+  left:50%; bottom:24px;
+  transform:translate(-50%, 20px);
+  background:var(--ink);
+  color:var(--cream);
+  padding:13px 22px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:.88rem;
+  box-shadow:0 10px 30px -8px rgba(0,0,0,.6);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s, transform .25s;
+  z-index:90;
+  border:1px solid rgba(248,244,233,.12);
+  max-width:90vw;
+  text-align:center;
+}
+.toast.is-visible{ opacity:1; transform:translate(-50%, 0); }
+.toast.is-error{ background:var(--danger); border-color:rgba(255,255,255,.2); }
+.toast.is-success{ background:var(--ok); border-color:rgba(255,255,255,.2); }
+.toast.is-info{ background:var(--ink); }
+
+/* ---------- 8. OVERLAY: ESCOBA ---------- */
+.broom-overlay{
+  position:fixed; inset:0; z-index:95;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(16,43,34,0);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .2s, background .3s;
+}
+.broom-overlay.is-visible{ opacity:1; background:rgba(16,43,34,.55); }
+.broom-burst{
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  transform:scale(.4) rotate(-10deg);
+  opacity:0;
+}
+.broom-overlay.is-visible .broom-burst{
+  animation: broomPop .9s cubic-bezier(.2,1.4,.4,1) forwards;
+}
+@keyframes broomPop{
+  0%{ transform:scale(.4) rotate(-10deg); opacity:0; }
+  55%{ transform:scale(1.12) rotate(3deg); opacity:1; }
+  75%{ transform:scale(.98) rotate(0); }
+  100%{ transform:scale(1) rotate(0); opacity:1; }
+}
+.broom-icon{
+  width:84px; height:84px;
+  color:var(--gold);
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.5));
+}
+.broom-text{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:clamp(1.8rem, 6vw, 3rem);
+  color:var(--gold);
+  text-align:center;
+  line-height:1.05;
+  text-shadow:0 4px 18px rgba(0,0,0,.5);
+}
+
+/* Confeti simple para victoria de escoba/partida */
+.confetti-piece{
+  position:fixed; top:-10px; z-index:96;
+  width:8px; height:14px;
+  border-radius:2px;
+  pointer-events:none;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  to{ transform:translateY(110vh) rotate(540deg); opacity:.9; }
+}
+
+/* ---------- 9. OVERLAY FIN DE PARTIDA ---------- */
+.end-overlay{
+  position:fixed; inset:0; z-index:98;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(8,20,16,0);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .3s, background .3s;
+  padding:20px;
+}
+.end-overlay.is-visible{ opacity:1; background:rgba(8,20,16,.78); pointer-events:auto; }
+.end-card{
+  width:100%; max-width:420px;
+  background:linear-gradient(180deg, rgba(248,244,233,.07), rgba(248,244,233,.03));
+  border:1px solid rgba(248,244,233,.15);
+  border-radius:var(--radius-l);
+  padding:32px;
+  text-align:center;
+  box-shadow:var(--shadow-panel);
+  transform:translateY(16px) scale(.96);
+  transition:transform .3s cubic-bezier(.2,.9,.3,1.1);
+}
+.end-overlay.is-visible .end-card{ transform:none; }
+.end-eyebrow{
+  text-transform:uppercase; letter-spacing:.1em; font-size:.72rem;
+  color:var(--cream-dim); font-weight:700; margin-bottom:8px;
+}
+.end-card h2{ font-size:2rem; color:var(--gold); margin-bottom:20px; }
+.end-scores{ display:flex; flex-direction:column; gap:8px; margin-bottom:26px; }
+.end-scores li{
+  display:flex; justify-content:space-between; align-items:center;
+  background:rgba(248,244,233,.05);
+  padding:10px 14px; border-radius:var(--radius-s);
+  font-size:.92rem; font-weight:600;
+}
+.end-scores li.is-winner{ border:1px solid var(--gold); color:var(--gold); }
+.end-actions{ display:flex; gap:10px; }
+
+/* ---------- 10. ESTADOS DE TURNO / DESTACADOS DE MESA ---------- */
+.table-cards .frac-card.is-selected{ border-color:var(--ok); box-shadow:0 0 0 3px rgba(63,143,95,.35), var(--shadow-card-hover); }
+.table-cards .frac-card.is-target-flash{ animation: flashOk .5s ease; }
+@keyframes flashOk{
+  0%,100%{ box-shadow:0 0 0 3px rgba(63,143,95,.35), var(--shadow-card-hover); }
+  50%{ box-shadow:0 0 0 6px rgba(63,143,95,.6), var(--shadow-card-hover); }
+}
+.frac-card.is-shake{ animation: shakeNo .4s; }
+@keyframes shakeNo{
+  10%,90%{ transform:translateX(-2px); }
+  20%,80%{ transform:translateX(4px); }
+  30%,50%,70%{ transform:translateX(-7px); }
+  40%,60%{ transform:translateX(7px); }
+}
+
+/* ---------- 11. RESPONSIVE ---------- */
+
+/* Tablet */
+@media (max-width: 980px){
+  .screen--game.is-active{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "topbar"
+      "rivals"
+      "score"
+      "table"
+      "hand";
+  }
+  .scoreboard{
+    border-left:none; border-bottom:1px solid rgba(248,244,233,.1);
+    padding:10px 16px;
+  }
+  #scoreboard-list{ flex-direction:row; flex-wrap:wrap; }
+  .score-row{ flex:1 1 140px; }
+  .menu-grid{ grid-template-columns:1fr 1fr; }
+}
+
+/* Móvil */
+@media (max-width: 620px){
+  .menu-card{ padding:28px 18px; }
+  .menu-grid{ grid-template-columns:1fr; gap:18px; }
+  .help-grid{ grid-template-columns:1fr; }
+  .help-block:nth-child(5){ grid-column:1; }
+
+  .frac-card{ --w:62px; --h:88px; padding:6px; }
+  .frac-card-label{ font-size:.54rem; }
+  .hand-cards{ gap:9px; min-height:92px; }
+  .table-cards{ gap:9px; }
+
+  .game-logo{ font-size:1rem; }
+  .player-zone-head{ flex-direction:column; align-items:flex-start; }
+  .player-actions{ width:100%; }
+  .player-actions .btn{ flex:1 1 auto; }
+
+  .rivals-row{ padding:10px 12px 2px; gap:8px; }
+  .rival-card{ padding:6px 10px; gap:7px; }
+  .rival-avatar{ width:28px; height:28px; font-size:.74rem; }
+  .rival-name{ font-size:.76rem; }
+  .rival-meta{ font-size:.66rem; }
+
+  .table-felt{ border-radius:18px; padding:14px; min-height:170px; }
+  .broom-icon{ width:60px; height:60px; }
+}
+
+@media (max-width: 380px){
+  .frac-card{ --w:52px; --h:76px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ======================================================
+     FONDO DECORATIVO DEL TAPETE
+====================================================== -->
+<div class="felt-backdrop" aria-hidden="true"></div>
+
+<!-- ======================================================
+     PANTALLA 1 — MENÚ PRINCIPAL
+====================================================== -->
+<section id="screen-menu" class="screen screen--menu is-active">
+  <div class="menu-card">
+
+    <header class="menu-header">
+      <h1 class="menu-title">
+        La Escoba<br><span>del&nbsp;Uno</span>
+      </h1>
+      <p class="menu-sub">Combina fracciones en la mesa hasta formar el entero. El que más recoge, gana.</p>
+      <p class="menu-credit">Creado por <strong>Prof. Cristian Romero</strong></p>
+    </header>
+
+    <div class="menu-grid">
+
+      <!-- Jugadores -->
+      <fieldset class="option-group">
+        <legend>Jugadores</legend>
+        <div class="pill-row" data-control="players">
+          <button type="button" class="pill" data-value="2">2</button>
+          <button type="button" class="pill is-selected" data-value="3">3</button>
+          <button type="button" class="pill" data-value="4">4</button>
+        </div>
+      </fieldset>
+
+      <!-- Modo -->
+      <fieldset class="option-group">
+        <legend>Modo de partida</legend>
+        <div class="pill-row" data-control="mode">
+          <button type="button" class="pill is-selected" data-value="ai">Humano vs IA</button>
+          <button type="button" class="pill" data-value="human">Todos humanos</button>
+        </div>
+      </fieldset>
+
+      <!-- Nombres de los jugadores humanos (se genera dinámicamente segun cantidad/modo) -->
+      <fieldset class="option-group option-group--switch" id="names-group">
+        <legend>Nombre de los jugadores</legend>
+        <div class="names-grid" id="names-grid"></div>
+      </fieldset>
+
+      <!-- Nivel -->
+      <fieldset class="option-group">
+        <legend>Nivel</legend>
+        <div class="pill-row" data-control="level">
+          <button type="button" class="pill is-selected" data-value="1">
+            Nivel 1
+            <small>1/2 · 1/4 · 1/8</small>
+          </button>
+          <button type="button" class="pill" data-value="2">
+            Nivel 2
+            <small>+ 1/3 · 1/6 · 1/9</small>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- Mazo -->
+      <fieldset class="option-group">
+        <legend>Mazo</legend>
+        <div class="pill-row" data-control="deck">
+          <button type="button" class="pill pill--blue is-selected" data-value="blue">Azul</button>
+          <button type="button" class="pill pill--red" data-value="red">Rojo</button>
+          <button type="button" class="pill pill--mixed" data-value="mixed">Mezclado</button>
+        </div>
+      </fieldset>
+
+      <!-- Modo aprendizaje -->
+      <fieldset class="option-group option-group--switch">
+        <legend>Modo aprendizaje</legend>
+        <label class="switch">
+          <input type="checkbox" id="learning-toggle" checked>
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+          <span class="switch-label">Muestra el valor de cada carta (ej: 1/4)</span>
+        </label>
+      </fieldset>
+
+    </div>
+
+    <div class="menu-actions">
+      <button type="button" id="btn-start" class="btn btn--primary">Nueva partida</button>
+      <button type="button" id="btn-help" class="btn btn--ghost">Instrucciones</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     PANTALLA 2 — INSTRUCCIONES
+====================================================== -->
+<section id="screen-help" class="screen screen--help">
+  <div class="help-card">
+    <h2>Cómo se juega</h2>
+
+    <div class="help-grid">
+      <div class="help-block">
+        <h3>Objetivo</h3>
+        <p>Formar el entero combinando una carta de tu mano con una o varias cartas de la mesa. Cada carta es una fracción representada con un rectángulo dividido en partes iguales.</p>
+      </div>
+
+      <div class="help-block">
+        <h3>Tu turno</h3>
+        <ol>
+          <li>Elegí una carta de tu mano.</li>
+          <li>Elegí una o varias cartas de la mesa para combinar junto con la tuya.</li>
+          <li>Si la combinación completa el entero, te llevás todas esas cartas y sumás un punto.</li>
+          <li>Si no lo completa, no podés levantar: probá otra combinación o bajá una carta de tu mano a la mesa.</li>
+        </ol>
+      </div>
+
+      <div class="help-block">
+        <h3>La Escoba</h3>
+        <p>Si levantás <strong>todas</strong> las cartas que había en la mesa, hacés <strong>«Escoba del Uno»</strong> y ganás 1 punto extra.</p>
+      </div>
+
+      <div class="help-block">
+        <h3>Ejemplos de combinaciones</h3>
+        <ul class="example-list">
+          <li><span class="frac">1/2</span> + <span class="frac">1/2</span></li>
+          <li><span class="frac">1/2</span> + <span class="frac">1/4</span> + <span class="frac">1/4</span></li>
+          <li><span class="frac">1/4</span> + <span class="frac">1/4</span> + <span class="frac">1/4</span> + <span class="frac">1/4</span></li>
+          <li><span class="frac">1/8</span> repetido 8 veces</li>
+        </ul>
+      </div>
+
+      <div class="help-block">
+        <h3>Fin de la partida</h3>
+        <p>Cuando se reparten todas las cartas del mazo y las manos quedan vacías, termina el juego. Gana quien más cartas haya recogido.</p>
+      </div>
+    </div>
+
+    <button type="button" id="btn-help-close" class="btn btn--primary">Entendido</button>
+  </div>
+</section>
+
+<!-- ======================================================
+     PANTALLA 3 — MESA DE JUEGO
+====================================================== -->
+<section id="screen-game" class="screen screen--game">
+
+  <!-- Barra superior: marcador y controles -->
+  <header class="game-topbar">
+    <button type="button" id="btn-menu" class="icon-btn" title="Volver al menú" aria-label="Volver al menú">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <h1 class="game-logo">Escoba <span>del Uno</span></h1>
+
+    <div class="game-topbar-right">
+      <label class="switch switch--compact">
+        <input type="checkbox" id="learning-toggle-ingame" checked>
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+        <span class="switch-label">Aprendizaje</span>
+      </label>
+      <div class="deck-count" id="deck-count" title="Cartas restantes en el mazo">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="13" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="7.5" y="6.5" width="13" height="18" rx="2" fill="var(--felt-1)" stroke="currentColor" stroke-width="1.8"/></svg>
+        <span id="deck-count-num">34</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tira de rivales -->
+  <div class="rivals-row" id="rivals-row"></div>
+
+  <!-- Mesa central -->
+  <main class="table-area">
+    <div class="table-felt">
+      <span class="zone-tag zone-tag--table">Mesa</span>
+      <div class="table-status" id="table-status" aria-live="polite"></div>
+      <div class="table-cards" id="table-cards"></div>
+      <div class="sum-tray" id="sum-tray" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <!-- Marcador lateral (desktop) / inferior (mobile) -->
+  <aside class="scoreboard" id="scoreboard">
+    <h2>Tanteador</h2>
+    <ul id="scoreboard-list"></ul>
+  </aside>
+
+  <!-- Mano del jugador actual + acciones -->
+  <footer class="player-zone">
+    <div class="player-zone-head">
+      <span class="zone-tag zone-tag--hand">Tu mano</span>
+      <span class="player-zone-name" id="current-player-name">Tu turno</span>
+      <div class="player-actions">
+        <button type="button" id="btn-confirm" class="btn btn--primary btn--sm" disabled>Levantar</button>
+        <button type="button" id="btn-discard" class="btn btn--ghost btn--sm" disabled>Bajar carta a la mesa</button>
+        <button type="button" id="btn-clear" class="btn btn--text btn--sm">Deshacer selección</button>
+      </div>
+    </div>
+    <div class="hand-cards" id="hand-cards"></div>
+  </footer>
+
+  <!-- Panel de jugada de la IA: aparece cuando la IA arma el entero,
+       muestra las cartas que combinó para que el jugador pueda verlas con calma -->
+  <div class="ai-play-panel" id="ai-play-panel" aria-live="polite" aria-hidden="true">
+    <div class="ai-play-panel-inner">
+      <p class="ai-play-panel-title" id="ai-play-panel-title"></p>
+      <div class="ai-play-panel-cards" id="ai-play-panel-cards"></div>
+    </div>
+  </div>
+
+  <!-- Overlay de Escoba -->
+  <div class="broom-overlay" id="broom-overlay" aria-hidden="true">
+    <div class="broom-burst">
+      <svg viewBox="0 0 24 24" fill="none" class="broom-icon"><path d="M19 3L9 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9 13c-3 0-6 1.5-7 5 4-1 6-1 7-1 1.5 0 3 .8 4 2 0-3-1-4.5-4-6z" fill="currentColor"/></svg>
+      <p class="broom-text">¡Escoba<br>del Uno!</p>
+    </div>
+  </div>
+
+  <!-- Overlay de fin de partida -->
+  <div class="end-overlay" id="end-overlay" aria-hidden="true">
+    <div class="end-card">
+      <p class="end-eyebrow">Partida terminada</p>
+      <h2 id="end-title">¡Ganaste!</h2>
+      <ul id="end-scores" class="end-scores"></ul>
+      <div class="end-actions">
+        <button type="button" id="btn-replay" class="btn btn--primary">Jugar de nuevo</button>
+        <button type="button" id="btn-end-menu" class="btn btn--ghost">Volver al menú</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de error / mensajes -->
+  <div class="toast" id="toast" aria-live="assertive"></div>
+
+</section>
+
+<script>
+/* ============================================================
+   LA ESCOBA DEL UNO — script.js
+   Juego de cartas matemático: sumar fracciones hasta formar 1.
+   100% JavaScript vanilla. Sin dependencias.
+============================================================ */
+
+(() => {
+  'use strict';
+
+  /* ============================================================
+     1. CONFIGURACIÓN DE CARTAS POR NIVEL
+     Cada entrada define el denominador, cuántas cartas hay de
+     ese valor por mazo, y se usa tanto para Azul como Rojo.
+  ============================================================ */
+  const LEVEL_DEFS = {
+    1: [
+      { den: 2, count: 6 },
+      { den: 4, count: 12 },
+      { den: 8, count: 16 },
+    ],
+    2: [
+      { den: 2, count: 6 },
+      { den: 4, count: 12 },
+      { den: 8, count: 16 },
+      { den: 3, count: 6 },
+      { den: 6, count: 12 },
+      { den: 9, count: 18 },
+    ],
+  };
+
+  const HAND_SIZE = 3;
+  const TABLE_INITIAL = 4;
+
+  /* ============================================================
+     2. ESTADO GLOBAL DEL JUEGO
+  ============================================================ */
+  let state = null; // se inicializa en startGame()
+  let cardUid = 0;  // contador para ids únicos de carta
+
+  function makeCard(den, deckColor) {
+    cardUid += 1;
+    return {
+      id: 'c' + cardUid,
+      den,                 // denominador (la carta vale 1/den)
+      deck: deckColor,      // 'blue' | 'red'
+    };
+  }
+
+  /* Construye y devuelve un mazo mezclado según nivel y tipo de mazo elegido */
+  function buildDeck(level, deckType) {
+    const defs = LEVEL_DEFS[level];
+    const colors = deckType === 'mixed' ? ['blue', 'red'] : [deckType];
+    let deck = [];
+
+    // Si es mezclado, repartimos la cantidad total entre ambos colores
+    // manteniendo el total de cartas igual al de un mazo simple.
+    defs.forEach(({ den, count }) => {
+      if (colors.length === 1) {
+        for (let i = 0; i < count; i++) deck.push(makeCard(den, colors[0]));
+      } else {
+        const half = Math.floor(count / 2);
+        const rest = count - half;
+        for (let i = 0; i < half; i++) deck.push(makeCard(den, 'blue'));
+        for (let i = 0; i < rest; i++) deck.push(makeCard(den, 'red'));
+      }
+    });
+
+    return shuffle(deck);
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  /* ============================================================
+     3. CREACIÓN DE JUGADORES
+  ============================================================ */
+  const AI_NAMES = ['Tara IA', 'Nico IA', 'Lula IA'];
+
+  function buildPlayers(count, mode, humanNames) {
+    const players = [];
+    let humanIndex = 0;
+    for (let i = 0; i < count; i++) {
+      const isAI = mode === 'ai' && i > 0;
+      let name;
+      if (isAI) {
+        name = AI_NAMES[(i - 1) % AI_NAMES.length];
+      } else {
+        name = (humanNames && humanNames[humanIndex]) || `Jugador ${humanIndex + 1}`;
+        humanIndex += 1;
+      }
+      players.push({
+        id: 'p' + i,
+        name,
+        isAI,
+        isHuman: !isAI,
+        hand: [],
+        points: 0,
+        brooms: 0,
+        wonCards: 0,
+      });
+    }
+    return players;
+  }
+
+  /* ============================================================
+     4. ARRANQUE DE PARTIDA
+  ============================================================ */
+  function startGame(opts) {
+    // En modo "Humano vs IA": forzar mazo mezclado para que el humano juegue
+    // siempre con cartas AZULES y la IA con cartas ROJAS — así es fácil identificar
+    // de quién es cada carta en la mesa sin necesidad de leer el valor.
+    const deckType = opts.mode === 'ai' ? 'mixed' : opts.deck;
+    const deck = buildDeck(opts.level, deckType);
+    const players = buildPlayers(opts.players, opts.mode, opts.humanNames);
+
+    state = {
+      opts: { ...opts, deck: deckType },
+      deck,
+      players,
+      table: [],
+      currentPlayerIndex: 0,
+      selection: { handCardId: null, tableCardIds: [] },
+      compareCardId: null,
+      learning: opts.learning,
+      lastTableTakerIndex: null,
+      gameOver: false,
+    };
+
+    // Repartir manos iniciales.
+    // En modo IA: re-colorear las cartas según el propietario que las recibe:
+    // el humano (índice 0) recibe azules, la IA recibe rojas.
+    players.forEach((p, idx) => {
+      let cards = drawCards(HAND_SIZE);
+      if (opts.mode === 'ai') {
+        const color = p.isAI ? 'red' : 'blue';
+        cards = cards.map(c => ({ ...c, deck: color, originalOwner: color }));
+      }
+      p.hand = cards;
+    });
+
+    // Cartas de la mesa: en modo IA empiezan sin dueño asignado (quedan con
+    // su color de mazo original, que es aleatorio del mezclado).
+    state.table = drawCards(TABLE_INITIAL).map(c => ({ ...c, justDealt: true }));
+
+    renderAll();
+    showScreen('game');
+    setTableStatus(`Turno de ${currentPlayer().name}.`);
+    maybeRunAITurn();
+  }
+
+  function drawCards(n) {
+    const count = Math.min(n, state.deck.length);
+    return state.deck.splice(0, count);
+  }
+
+  /* ============================================================
+     5. UTILIDADES DE ESTADO
+  ============================================================ */
+  function currentPlayer() { return state.players[state.currentPlayerIndex]; }
+
+  function nextPlayerIndex(fromIndex) {
+    return (fromIndex + 1) % state.players.length;
+  }
+
+  function advanceTurn() {
+    state.currentPlayerIndex = nextPlayerIndex(state.currentPlayerIndex);
+    clearSelection();
+  }
+
+  function clearSelection() {
+    state.selection = { handCardId: null, tableCardIds: [] };
+    state.compareCardId = null;
+  }
+
+  /* Suma exacta usando aritmética racional (evita errores de float) */
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+  function sumFractions(dens) {
+    // dens: array de denominadores, cada carta vale 1/den
+    // Sumamos como fracciones exactas: numerador/denominador común
+    let num = 0, den = 1;
+    dens.forEach(d => {
+      // num/den + 1/d = (num*d + den) / (den*d)
+      num = num * d + den;
+      den = den * d;
+      const g = gcd(num, den) || 1;
+      num /= g; den /= g;
+    });
+    return { num, den };
+  }
+
+  function isExactlyOne(dens) {
+    if (dens.length === 0) return false;
+    const { num, den } = sumFractions(dens);
+    return num === den;
+  }
+
+  /* ============================================================
+     6. RENDER — pantallas
+  ============================================================ */
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('is-active'));
+    if (name === 'menu') document.getElementById('screen-menu').classList.add('is-active');
+    if (name === 'help') document.getElementById('screen-help').classList.add('is-active');
+    if (name === 'game') document.getElementById('screen-game').classList.add('is-active');
+  }
+
+  /* ---------- 6.1 Construcción visual de una carta ---------- */
+  function buildCardElement(card, { mini = false, selectable = true } = {}) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `frac-card deck-${card.deck}` + (mini ? ' is-mini' : '');
+    btn.dataset.cardId = card.id;
+    btn.setAttribute('aria-label', `Carta fracción 1 de ${card.den}`);
+    if (!selectable) btn.tabIndex = -1;
+
+    const corner = document.createElement('span');
+    corner.className = 'frac-card-corner';
+    btn.appendChild(corner);
+
+    const label = document.createElement('div');
+    label.className = 'frac-card-label';
+    label.textContent = state && state.learning && !mini ? `1/${card.den}` : '';
+    btn.appendChild(label);
+
+    const shape = document.createElement('div');
+    shape.className = 'frac-shape';
+    shape.dataset.den = String(card.den);
+    for (let i = 0; i < card.den; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'frac-cell' + (i === 0 ? ' is-filled' : '');
+      shape.appendChild(cell);
+    }
+    btn.appendChild(shape);
+
+    return btn;
+  }
+
+  /* ---------- 6.2 Render completo ---------- */
+  function renderAll() {
+    if (!state) return;
+    renderTopbar();
+    renderRivals();
+    renderTable();
+    renderHand();
+    renderScoreboard();
+    renderActionButtons();
+  }
+
+  function renderTopbar() {
+    document.getElementById('deck-count-num').textContent = String(state.deck.length);
+  }
+
+  function renderRivals() {
+    const row = document.getElementById('rivals-row');
+    row.innerHTML = '';
+    // La zona inferior siempre muestra la mano de quien tiene el turno (pase y juegue
+    // en el mismo dispositivo). Por eso acá mostramos a todos los DEMÁS jugadores,
+    // no siempre al índice 0.
+    state.players.forEach((p, idx) => {
+      if (idx === state.currentPlayerIndex) return;
+      const card = document.createElement('div');
+      card.className = 'rival-card';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'rival-avatar';
+      avatar.textContent = initials(p.name);
+      card.appendChild(avatar);
+
+      const info = document.createElement('div');
+      info.className = 'rival-info';
+      const nm = document.createElement('span');
+      nm.className = 'rival-name';
+      nm.textContent = p.name + (p.isAI ? ' 🤖' : '');
+      const meta = document.createElement('span');
+      meta.className = 'rival-meta';
+      meta.textContent = `${p.hand.length} cartas · ${p.points} pts`;
+      info.appendChild(nm);
+      info.appendChild(meta);
+      card.appendChild(info);
+
+      row.appendChild(card);
+    });
+  }
+
+  function initials(name) {
+    return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+
+  function renderTable() {
+    const wrap = document.getElementById('table-cards');
+    wrap.innerHTML = '';
+    const player = currentPlayer();
+    const canCompare = !player.isAI && !!state.selection.handCardId;
+    const compareCard = canCompare
+      ? player.hand.find(c => c.id === state.selection.handCardId)
+      : null;
+
+    state.table.forEach(card => {
+      const el = buildCardElement(card, { mini: false });
+      if (state.selection.tableCardIds.includes(card.id)) el.classList.add('is-selected');
+      if (card.justDealt) {
+        el.classList.add('is-dealt');
+        delete card.justDealt;
+      }
+      el.addEventListener('click', () => onTableCardClick(card.id));
+
+      // Botón "comparar": superpone la carta de mano elegida sobre esta carta de mesa,
+      // solo como referencia visual — no selecciona la carta ni cuenta como jugada.
+      if (canCompare) {
+        const compareBtn = document.createElement('span');
+        compareBtn.className = 'compare-btn';
+        compareBtn.title = 'Superponer tu carta acá para comparar';
+        compareBtn.setAttribute('role', 'button');
+        compareBtn.setAttribute('aria-label', 'Comparar con tu carta elegida');
+        compareBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+        compareBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // no dispara la selección de jugada de la carta de mesa
+          state.compareCardId = state.compareCardId === card.id ? null : card.id;
+          renderTable();
+        });
+        el.appendChild(compareBtn);
+      }
+
+      // Capa de superposición: dibuja el patrón de la carta de mano elegida
+      // en un tono más claro, exactamente sobre el rectángulo de esta carta de mesa.
+      if (compareCard && state.compareCardId === card.id) {
+        el.classList.add('is-comparing');
+        const shapeEl = el.querySelector('.frac-shape');
+        shapeEl.appendChild(buildOverlayLayer(compareCard));
+      }
+
+      wrap.appendChild(el);
+    });
+    updateSumTray();
+  }
+
+  /* Construye la capa semitransparente que se superpone sobre una carta de mesa
+     para comparar visualmente qué porción cubre la carta de mano elegida. */
+  function buildOverlayLayer(card) {
+    const overlay = document.createElement('div');
+    overlay.className = 'frac-overlay';
+    const shape = document.createElement('div');
+    shape.className = 'frac-shape frac-shape--overlay';
+    shape.dataset.den = String(card.den);
+    for (let i = 0; i < card.den; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'frac-cell' + (i === 0 ? ' is-filled' : '');
+      shape.appendChild(cell);
+    }
+    overlay.appendChild(shape);
+    return overlay;
+  }
+
+  function renderHand() {
+    const wrap = document.getElementById('hand-cards');
+    wrap.innerHTML = '';
+    const player = currentPlayer();
+    document.getElementById('current-player-name').textContent =
+      player.isAI ? `Turno de ${player.name} 🤖` : (state.players.length > 1 ? `Turno de ${player.name}` : 'Tu turno');
+
+    player.hand.forEach(card => {
+      // Si juega la IA, sus cartas se muestran boca abajo (sin revelar la fracción),
+      // EXCEPTO la carta que ya decidió jugar: esa se muestra boca arriba y resaltada
+      // para que se pueda observar con qué jugó antes de que se barra de la mesa.
+      const isRevealedAIPick = player.isAI && state.selection.handCardId === card.id;
+      const el = (player.isAI && !isRevealedAIPick)
+        ? buildFaceDownCard()
+        : buildCardElement(card, { mini: false, selectable: !player.isAI });
+
+      if (!player.isAI) {
+        if (state.selection.handCardId === card.id) el.classList.add('is-selected');
+        if (card.justDealt) el.classList.add('is-dealt');
+        el.addEventListener('click', () => onHandCardClick(card.id));
+      } else if (isRevealedAIPick) {
+        el.classList.add('is-selected');
+      }
+      if (card.justDealt) delete card.justDealt;
+      wrap.appendChild(el);
+    });
+  }
+
+  /* Carta "boca abajo": mismo tamaño que una carta normal, pero sin revelar
+     el denominador. Se usa para la mano de la IA mientras decide su jugada. */
+  function buildFaceDownCard() {
+    const div = document.createElement('div');
+    div.className = 'frac-card frac-card--back';
+    div.setAttribute('aria-hidden', 'true');
+    const mark = document.createElement('span');
+    mark.className = 'frac-card-back-mark';
+    mark.textContent = '1';
+    div.appendChild(mark);
+    return div;
+  }
+
+  function renderScoreboard() {
+    const list = document.getElementById('scoreboard-list');
+    list.innerHTML = '';
+    state.players.forEach((p, idx) => {
+      const row = document.createElement('li');
+      row.className = 'score-row' + (idx === state.currentPlayerIndex ? ' is-active' : '');
+      row.innerHTML = `
+        <span class="score-name">${escapeHtml(p.name)}${p.isAI ? ' 🤖' : ''}</span>
+        <span style="display:flex;flex-direction:column;align-items:flex-end;">
+          <span class="score-points">${p.points} pt${p.points === 1 ? '' : 's'}</span>
+          <span class="score-brooms">${p.brooms > 0 ? '🧹'.repeat(Math.min(p.brooms, 5)) + (p.brooms > 5 ? ` +${p.brooms - 5}` : '') : '—'}</span>
+        </span>`;
+      list.appendChild(row);
+    });
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function renderActionButtons() {
+    const player = currentPlayer();
+    const confirmBtn = document.getElementById('btn-confirm');
+    const discardBtn = document.getElementById('btn-discard');
+
+    const hasHand = !!state.selection.handCardId;
+    const hasTable = state.selection.tableCardIds.length > 0;
+    const humanTurn = !player.isAI;
+
+    confirmBtn.disabled = !(humanTurn && hasHand && hasTable);
+    discardBtn.disabled = !(humanTurn && hasHand && !hasTable);
+  }
+
+  function updateSumTray() {
+    // El cuadro de texto bajo la mesa ya no revela la suma ni el resultado:
+    // la idea es que el chico construya la relación mirando las cartas,
+    // no que se la digamos en números antes de jugar.
+    document.getElementById('sum-tray').textContent = '';
+  }
+
+  /* ============================================================
+     7. INTERACCIÓN — JUGADOR HUMANO
+  ============================================================ */
+  function onHandCardClick(cardId) {
+    const player = currentPlayer();
+    if (player.isAI || state.gameOver) return;
+
+    hideAIPlayPanel(); // si quedó abierto el panel de jugada de la IA, cerrarlo
+
+    if (state.selection.handCardId === cardId) {
+      // deseleccionar
+      state.selection.handCardId = null;
+    } else {
+      state.selection.handCardId = cardId;
+    }
+    state.selection.tableCardIds = []; // cambiar de carta de mano reinicia selección de mesa
+    state.compareCardId = null; // y también cierra cualquier comparación que estuviera activa
+    renderHand();
+    renderTable();
+    renderActionButtons();
+  }
+
+  function onTableCardClick(cardId) {
+    const player = currentPlayer();
+    if (player.isAI || state.gameOver) return;
+    if (!state.selection.handCardId) {
+      showToast('Primero elegí una carta de tu mano.', 'info');
+      return;
+    }
+    const idx = state.selection.tableCardIds.indexOf(cardId);
+    if (idx >= 0) state.selection.tableCardIds.splice(idx, 1);
+    else state.selection.tableCardIds.push(cardId);
+
+    renderTable();
+    renderActionButtons();
+  }
+
+  function onConfirmClick() {
+    const player = currentPlayer();
+    if (player.isAI || state.gameOver) return;
+    attemptPickup(player, state.selection.handCardId, state.selection.tableCardIds, { animate: true });
+  }
+
+  function onDiscardClick() {
+    const player = currentPlayer();
+    if (player.isAI || state.gameOver) return;
+    if (!state.selection.handCardId) return;
+    performDiscard(player, state.selection.handCardId, { animate: true });
+  }
+
+  /* ============================================================
+     8. LÓGICA DE JUGADA — recoger / descartar
+  ============================================================ */
+  function attemptPickup(player, handCardId, tableCardIds, { animate, preDelay = 0 }) {
+    const handCard = player.hand.find(c => c.id === handCardId);
+    const tableCards = state.table.filter(c => tableCardIds.includes(c.id));
+
+    if (!handCard || tableCards.length === 0) {
+      showToast('Elegí una carta de mano y al menos una de la mesa.', 'error');
+      return false;
+    }
+
+    const dens = [handCard.den, ...tableCards.map(c => c.den)];
+    const ok = isExactlyOne(dens);
+
+    if (!ok) {
+      showToast('Esa combinación no suma exactamente 1. Probá de nuevo.', 'error');
+      flashShake(tableCardIds.concat([handCardId]));
+      return false;
+    }
+
+    // ¡Levanta! — comprobar si fue Escoba (se llevó TODA la mesa)
+    const wasBroom = tableCards.length === state.table.length;
+
+    // Registramos quién fue el último en levantar mesa (regla de cierre de partida:
+    // si sobran cartas en la mesa al terminar el mazo, se las lleva este jugador).
+    state.lastTableTakerIndex = state.players.indexOf(player);
+
+    const allWon = [handCard, ...tableCards];
+
+    if (preDelay > 0) {
+      // Mostramos la selección quieta (cartas resaltadas, sin barrer todavía)
+      // para que se pueda observar con qué jugó la IA antes de que desaparezcan.
+      renderAll();
+      setTimeout(() => {
+        doPickupAnimationThenApply(player, handCard, tableCards, wasBroom, allWon, animate);
+      }, preDelay);
+    } else {
+      doPickupAnimationThenApply(player, handCard, tableCards, wasBroom, allWon, animate);
+    }
+    return true;
+  }
+
+  function doPickupAnimationThenApply(player, handCard, tableCards, wasBroom, allWon, animate) {
+    const idsToAnimate = [handCard.id, ...tableCards.map(c => c.id)];
+
+    if (animate) {
+      idsToAnimate.forEach(id => {
+        const el = document.querySelector(`[data-card-id="${id}"]`);
+        if (el) el.classList.add('is-removing');
+      });
+    }
+
+    const finish = () => {
+      // Quitar de mano y de mesa
+      player.hand = player.hand.filter(c => c.id !== handCard.id);
+      state.table = state.table.filter(c => !tableCards.some(t => t.id === c.id));
+
+      // Puntaje
+      player.points += 1;
+      player.wonCards += allWon.length;
+      if (wasBroom) player.brooms += 1;
+
+      clearSelection();
+
+      const sumText = `1/${handCard.den} + ` + tableCards.map(c => `1/${c.den}`).join(' + ') + ' = 1';
+      if (wasBroom) {
+        showToast(`¡Escoba del Uno! ${player.name} se lleva toda la mesa. (${sumText})`, 'success');
+        triggerBroomOverlay();
+      } else {
+        showToast(`¡${player.name} suma 1 punto! (${sumText})`, 'success');
+      }
+
+      renderAll();
+      afterPlayCleanup(player);
+    };
+
+    if (animate) {
+      setTimeout(finish, 520);
+    } else {
+      finish();
+    }
+  }
+
+  function performDiscard(player, handCardId, { animate }) {
+    const handCard = player.hand.find(c => c.id === handCardId);
+    if (!handCard) return;
+
+    const apply = () => {
+      player.hand = player.hand.filter(c => c.id !== handCardId);
+      state.table.push(handCard);
+      clearSelection();
+      showToast(`${player.name} bajó 1/${handCard.den} a la mesa.`, 'info');
+      renderAll();
+      afterPlayCleanup(player);
+    };
+
+    if (animate) {
+      const el = document.querySelector(`[data-card-id="${handCardId}"]`);
+      if (el) el.classList.add('is-discarding');
+      setTimeout(apply, 380);
+    } else {
+      apply();
+    }
+  }
+
+  /* Tras cada jugada: repartir si hace falta, chequear fin de partida, pasar turno */
+  function afterPlayCleanup(player) {
+    // Si el jugador se quedó sin cartas, y el mazo aún tiene, todos recargan mano
+    const allHandsEmpty = state.players.every(p => p.hand.length === 0);
+    if (allHandsEmpty && state.deck.length > 0) {
+      dealNewHandsToAll();
+    }
+
+    if (isGameOver()) {
+      endGame();
+      return;
+    }
+
+    advanceTurn();
+    renderAll();
+    setTableStatus(`Turno de ${currentPlayer().name}.`);
+    maybeRunAITurn();
+  }
+
+  function dealNewHandsToAll() {
+    state.players.forEach(p => {
+      const n = Math.min(HAND_SIZE, state.deck.length);
+      let newCards = state.deck.splice(0, n).map(c => ({ ...c, justDealt: true }));
+      // En modo IA recolorear las cartas según el propietario, igual que al inicio.
+      if (state.opts.mode === 'ai') {
+        const color = p.isAI ? 'red' : 'blue';
+        newCards = newCards.map(c => ({ ...c, deck: color }));
+      }
+      p.hand = newCards;
+    });
+  }
+
+  function isGameOver() {
+    const allHandsEmpty = state.players.every(p => p.hand.length === 0);
+    return state.deck.length === 0 && allHandsEmpty;
+  }
+
+  function endGame() {
+    state.gameOver = true;
+
+    // Si quedan cartas en la mesa al terminar, se las lleva quien hizo la última recogida (regla clásica de Escoba)
+    if (state.table.length > 0 && state.lastTableTakerIndex !== null) {
+      const taker = state.players[state.lastTableTakerIndex];
+      if (taker) {
+        taker.wonCards += state.table.length;
+      }
+    }
+
+    setTableStatus('Partida terminada.');
+    renderAll();
+    showEndOverlay();
+  }
+
+  function setTableStatus(text) {
+    document.getElementById('table-status').textContent = text;
+  }
+
+  /* ============================================================
+     9. IA BÁSICA
+     1) Busca combinaciones que sumen exactamente 1.
+     2) Prioriza Escobas (levantar toda la mesa).
+     3) Prioriza jugadas que usen más cartas.
+     4) Si no puede levantar, descarta inteligentemente
+        (la carta menos útil: la que menos combina con la mesa).
+  ============================================================ */
+
+  function maybeRunAITurn() {
+    if (state.gameOver) return;
+    const player = currentPlayer();
+    if (!player.isAI) return;
+
+    setTableStatus(`${player.name} está pensando...`);
+    renderHand();
+    // Espera 1.8s "pensando" antes de revelar la jugada elegida.
+    setTimeout(() => runAITurn(player), 1800);
+  }
+
+  function runAITurn(player) {
+    if (state.gameOver) return;
+    const move = findBestAIMove(player);
+
+    if (move) {
+      state.selection.handCardId = move.handCard.id;
+      state.selection.tableCardIds = move.tableCards.map(c => c.id);
+      setTableStatus(`${player.name} armó su combinación. Revisá las cartas…`);
+      // 1) Mostrar selección resaltada en la mesa y la mano (boca arriba)
+      renderAll();
+      // 2) Inmediatamente mostrar el panel con las cartas de la jugada —
+      //    le da al jugador tiempo suficiente para leer qué combinó la IA.
+      const PANEL_DURATION = 3800; // ms que el panel permanece visible
+      const SWEEP_DELAY    = 3200; // ms antes de barrer (ligeramente antes de que cierre el panel)
+      showAIPlayPanel(player.name, move.handCard, move.tableCards, move.isBroom, PANEL_DURATION);
+      // 3) Después del delay, levantar las cartas (la animación de barrido dura ~520ms)
+      setTimeout(() => {
+        attemptPickup(player, move.handCard.id, move.tableCards.map(c => c.id), { animate: true, preDelay: 0 });
+      }, SWEEP_DELAY);
+    } else {
+      const discardCard = chooseDiscard(player);
+      state.selection.handCardId = discardCard.id;
+      setTableStatus(`${player.name} no puede armar el entero y baja una carta a la mesa…`);
+      // Revelar la carta que baja y darle 2.5s al jugador para verla antes de animarla.
+      renderAll();
+      setTimeout(() => {
+        performDiscard(player, discardCard.id, { animate: true });
+      }, 2500);
+    }
+  }
+
+  /* Genera todos los subconjuntos no vacíos de la mesa (acotado: la mesa rara vez
+     supera ~10 cartas, así que 2^n es manejable) y busca, para cada carta de mano,
+     el subconjunto que sume exactamente 1 junto con ella. */
+  function findBestAIMove(player) {
+    const tableSubsets = allNonEmptySubsets(state.table);
+    let best = null; // { handCard, tableCards, isBroom, size }
+
+    player.hand.forEach(handCard => {
+      tableSubsets.forEach(subset => {
+        const dens = [handCard.den, ...subset.map(c => c.den)];
+        if (isExactlyOne(dens)) {
+          const isBroom = subset.length === state.table.length;
+          const size = subset.length;
+          const candidate = { handCard, tableCards: subset, isBroom, size };
+          if (!best) { best = candidate; return; }
+          // Prioridad 1: escoba. Prioridad 2: mayor cantidad de cartas usadas.
+          if (candidate.isBroom && !best.isBroom) { best = candidate; return; }
+          if (candidate.isBroom === best.isBroom && candidate.size > best.size) { best = candidate; }
+        }
+      });
+    });
+
+    return best;
+  }
+
+  function allNonEmptySubsets(arr) {
+    const subsets = [[]];
+    arr.forEach(item => {
+      const len = subsets.length;
+      for (let i = 0; i < len; i++) {
+        subsets.push(subsets[i].concat([item]));
+      }
+    });
+    subsets.shift(); // quitar el vacío
+    // Límite de seguridad por si la mesa creciera mucho (evita explosión combinatoria)
+    return subsets.length > 4096 ? subsets.slice(0, 4096) : subsets;
+  }
+
+  /* Elige qué carta descartar cuando no hay jugada posible:
+     prioriza descartar la carta cuyo valor es menos "compatible"
+     con lo que hay en mesa (la que, sumada a cualquier carta de mesa,
+     queda más lejos de 1), para no regalarle una jugada fácil al rival. */
+  function chooseDiscard(player) {
+    if (player.hand.length === 1) return player.hand[0];
+
+    let worstForOpponent = null;
+    let worstScore = -Infinity;
+
+    player.hand.forEach(handCard => {
+      // Cuanto más "redonda" o combinable es la carta con la mesa, más peligrosa es descartarla.
+      // Medimos qué tan cerca puede llegar a 1 combinada con subconjuntos de la mesa.
+      const subsets = allNonEmptySubsets(state.table);
+      let bestCloseness = Infinity; // 0 = exacto
+
+      subsets.forEach(subset => {
+        const dens = [handCard.den, ...subset.map(c => c.den)];
+        const { num, den } = sumFractions(dens);
+        const diff = Math.abs(num - den) / den;
+        if (diff < bestCloseness) bestCloseness = diff;
+      });
+      if (state.table.length === 0) bestCloseness = 1; // nada que combinar
+
+      // Score alto = seguro para descartar (lejos de ayudar al rival)
+      if (bestCloseness > worstScore) {
+        worstScore = bestCloseness;
+        worstForOpponent = handCard;
+      }
+    });
+
+    return worstForOpponent || player.hand[0];
+  }
+
+  /* ============================================================
+     10. EFECTOS VISUALES
+  ============================================================ */
+  let toastTimer = null;
+  function showToast(msg, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast is-visible ' + (type === 'error' ? 'is-error' : type === 'success' ? 'is-success' : 'is-info');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('is-visible');
+    }, 2600);
+  }
+
+  /* Muestra el panel de "jugada de la IA" con las cartas que combinó para
+     formar el entero. Se usa cuando la IA levanta cartas y queremos dar
+     tiempo al jugador humano para revisar qué combinó antes de que desaparezca.
+     duration: cuántos ms mantener el panel visible (se llama antes de la animación). */
+  let aiPanelTimer = null;
+  function showAIPlayPanel(playerName, handCard, tableCards, isBroom, duration = 3500) {
+    const panel = document.getElementById('ai-play-panel');
+    const title = document.getElementById('ai-play-panel-title');
+    const cardsWrap = document.getElementById('ai-play-panel-cards');
+
+    title.textContent = isBroom
+      ? `¡${playerName} hace Escoba del Uno!`
+      : `${playerName} combina estas cartas:`;
+
+    cardsWrap.innerHTML = '';
+    const allCards = [handCard, ...tableCards];
+    allCards.forEach((card, idx) => {
+      if (idx > 0) {
+        const plus = document.createElement('span');
+        plus.className = 'ai-play-plus';
+        plus.textContent = '+';
+        cardsWrap.appendChild(plus);
+      }
+      const el = buildCardElement(card, { mini: false, selectable: false });
+      el.style.setProperty('--w', '72px');
+      el.style.setProperty('--h', '100px');
+      cardsWrap.appendChild(el);
+    });
+
+    panel.setAttribute('aria-hidden', 'false');
+    panel.classList.add('is-visible');
+
+    clearTimeout(aiPanelTimer);
+    aiPanelTimer = setTimeout(() => {
+      panel.classList.remove('is-visible');
+      panel.setAttribute('aria-hidden', 'true');
+    }, duration);
+  }
+
+  function hideAIPlayPanel() {
+    clearTimeout(aiPanelTimer);
+    const panel = document.getElementById('ai-play-panel');
+    panel.classList.remove('is-visible');
+    panel.setAttribute('aria-hidden', 'true');
+  }
+
+  function flashShake(cardIds) {
+    cardIds.forEach(id => {
+      const el = document.querySelector(`[data-card-id="${id}"]`);
+      if (el) {
+        el.classList.add('is-shake');
+        setTimeout(() => el.classList.remove('is-shake'), 420);
+      }
+    });
+  }
+
+  function triggerBroomOverlay() {
+    const overlay = document.getElementById('broom-overlay');
+    overlay.classList.add('is-visible');
+    launchConfetti();
+    setTimeout(() => overlay.classList.remove('is-visible'), 1300);
+  }
+
+  const CONFETTI_COLORS = ['#d4a24c', '#2c5f8a', '#a8392c', '#f8f4e9', '#3f8f5f'];
+  function launchConfetti() {
+    const count = 26;
+    for (let i = 0; i < count; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      piece.style.animationDuration = (1.6 + Math.random() * 1.2) + 's';
+      piece.style.opacity = String(0.7 + Math.random() * 0.3);
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3200);
+    }
+  }
+
+  function showEndOverlay() {
+    const overlay = document.getElementById('end-overlay');
+    const title = document.getElementById('end-title');
+    const list = document.getElementById('end-scores');
+
+    const ranked = state.players.slice().sort((a, b) => totalScore(b) - totalScore(a));
+    const winner = ranked[0];
+    const isTie = ranked.length > 1 && totalScore(ranked[0]) === totalScore(ranked[1]);
+
+    title.textContent = isTie ? '¡Empate!' : (winner.isAI ? `Gana ${winner.name} 🤖` : `¡Ganó ${winner.name}!`);
+
+    list.innerHTML = '';
+    ranked.forEach((p, idx) => {
+      const li = document.createElement('li');
+      if (idx === 0 && !isTie) li.classList.add('is-winner');
+      li.innerHTML = `<span>${escapeHtml(p.name)}${p.isAI ? ' 🤖' : ''}</span><span>${p.points} pts · ${p.wonCards} cartas${p.brooms ? ` · ${p.brooms} 🧹` : ''}</span>`;
+      list.appendChild(li);
+    });
+
+    overlay.classList.add('is-visible');
+    if (!isTie) launchConfetti();
+  }
+
+  function totalScore(p) {
+    // El puntaje principal son los puntos por jugada; las cartas totales desempatan.
+    return p.points * 1000 + p.wonCards;
+  }
+
+  function hideEndOverlay() {
+    document.getElementById('end-overlay').classList.remove('is-visible');
+  }
+
+  /* ============================================================
+     11. EVENTOS DE INTERFAZ — MENÚ
+  ============================================================ */
+  const menuSelections = { players: 3, mode: 'ai', level: 1, deck: 'blue' };
+
+  function wirePillGroup(control, onChange) {
+    const group = document.querySelector(`.pill-row[data-control="${control}"]`);
+    group.querySelectorAll('.pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.pill').forEach(b => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        const raw = btn.dataset.value;
+        const val = isNaN(Number(raw)) ? raw : Number(raw);
+        menuSelections[control] = val;
+        onChange && onChange(val);
+      });
+    });
+  }
+
+  function initMenuEvents() {
+    wirePillGroup('players', renderNameFields);
+    wirePillGroup('mode', renderNameFields);
+    wirePillGroup('level');
+    wirePillGroup('deck');
+
+    renderNameFields(); // estado inicial al cargar el menú
+
+    document.getElementById('btn-start').addEventListener('click', () => {
+      const learning = document.getElementById('learning-toggle').checked;
+      startGame({
+        players: menuSelections.players,
+        mode: menuSelections.mode,
+        level: menuSelections.level,
+        deck: menuSelections.deck,
+        learning,
+        humanNames: readHumanNames(),
+      });
+    });
+
+    document.getElementById('btn-help').addEventListener('click', () => showScreen('help'));
+    document.getElementById('btn-help-close').addEventListener('click', () => showScreen('menu'));
+  }
+
+  /* Cuántos jugadores humanos hay que nombrar segun el modo elegido:
+     en "Humano vs IA" solo el jugador 0 es humano; en "Todos humanos" lo son todos. */
+  function humanSlotCount() {
+    return menuSelections.mode === 'ai' ? 1 : menuSelections.players;
+  }
+
+  /* Redibuja los campos de texto de nombre, conservando lo ya escrito cuando es posible */
+  function renderNameFields() {
+    const grid = document.getElementById('names-grid');
+    const previousValues = Array.from(grid.querySelectorAll('input')).map(i => i.value);
+    grid.innerHTML = '';
+    const count = humanSlotCount();
+    for (let i = 0; i < count; i++) {
+      const field = document.createElement('div');
+      field.className = 'name-field';
+      const label = document.createElement('label');
+      label.setAttribute('for', 'name-input-' + i);
+      label.textContent = count === 1 ? 'Tu nombre' : `Jugador ${i + 1}`;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'name-input-' + i;
+      input.maxLength = 16;
+      input.placeholder = count === 1 ? 'Ej: Mica' : `Ej: Jugador ${i + 1}`;
+      if (previousValues[i]) input.value = previousValues[i];
+      field.appendChild(label);
+      field.appendChild(input);
+      grid.appendChild(field);
+    }
+  }
+
+  /* Lee los nombres escritos; si un campo quedó vacío, usa un nombre genérico de respaldo */
+  function readHumanNames() {
+    const count = humanSlotCount();
+    const names = [];
+    for (let i = 0; i < count; i++) {
+      const input = document.getElementById('name-input-' + i);
+      const typed = input && input.value.trim();
+      names.push(typed || (count === 1 ? 'Jugador 1' : `Jugador ${i + 1}`));
+    }
+    return names;
+  }
+
+  function initGameEvents() {
+    document.getElementById('btn-confirm').addEventListener('click', onConfirmClick);
+    document.getElementById('btn-discard').addEventListener('click', onDiscardClick);
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      clearSelection();
+      renderTable(); renderHand(); renderActionButtons();
+    });
+    document.getElementById('btn-menu').addEventListener('click', () => {
+      if (confirm('¿Volver al menú? Se perderá el progreso de la partida actual.')) {
+        showScreen('menu');
+      }
+    });
+
+    // Modo aprendizaje: dos toggles (menú e in-game) sincronizados
+    document.getElementById('learning-toggle-ingame').addEventListener('change', (e) => {
+      state.learning = e.target.checked;
+      document.getElementById('learning-toggle').checked = e.target.checked;
+      renderTable(); renderHand();
+    });
+
+    document.getElementById('btn-replay').addEventListener('click', () => {
+      hideEndOverlay();
+      const learning = state.learning;
+      startGame({ ...state.opts, learning });
+    });
+    document.getElementById('btn-end-menu').addEventListener('click', () => {
+      hideEndOverlay();
+      showScreen('menu');
+    });
+  }
+
+  /* ============================================================
+     12. INICIALIZACIÓN
+  ============================================================ */
+  document.addEventListener('DOMContentLoaded', () => {
+    initMenuEvents();
+    initGameEvents();
+    showScreen('menu');
+  });
+
+})();
+
+</script>
+</body>
+</html>
