@@ -553,17 +553,34 @@ h1,h2,h3,h4,h5,h6 { line-height: 1.25; }
 .btn-lg { padding: 0.9rem 1.8rem; font-size: var(--text-base); border-radius: var(--r-lg); }
 .btn-sm { padding: 0.45rem 0.9rem; font-size: var(--text-xs); border-radius: var(--r-sm); }
 
-/* ── 9. PERFIL ───────────────────────────────────────── */
+/* ── 9. EQUIPO ────────────────────────────────────────── */
 .profile-section { background: var(--c-bg-2); }
-.profile-card {
-  display: grid; grid-template-columns: auto 1fr;
-  gap: var(--space-12); align-items: start;
+
+/* Grilla de tarjetas de personas */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-10);
+}
+
+/* Tarjeta individual de cada integrante: avatar centrado arriba,
+   info debajo. Mismo formato para todos. */
+.team-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--r-2xl);
-  padding: var(--space-10);
-  box-shadow: var(--shadow-l);
+  padding: var(--space-8) var(--space-6);
+  box-shadow: var(--shadow-s);
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+  transition: transform var(--t-base), box-shadow var(--t-base);
 }
+.team-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-m); }
+.team-card .profile-avatar { margin-bottom: var(--space-5); }
+.team-card .profile-titles { justify-content: center; }
+.team-card .profile-bio { text-align: left; }
+
 .profile-avatar {
   position: relative; flex-shrink: 0;
   width: 140px; height: 140px;
@@ -597,7 +614,7 @@ h1,h2,h3,h4,h5,h6 { line-height: 1.25; }
 }
 .profile-name {
   font-family: var(--font-display);
-  font-size: clamp(var(--text-2xl), 3vw, var(--text-4xl));
+  font-size: var(--text-xl);
   font-weight: 800; color: var(--c-text);
   margin-bottom: var(--space-4);
 }
@@ -618,15 +635,23 @@ h1,h2,h3,h4,h5,h6 { line-height: 1.25; }
 }
 .profile-bio {
   color: var(--c-text-2); line-height: 1.8;
-  margin-bottom: var(--space-4); font-size: var(--text-base);
+  margin-bottom: var(--space-4); font-size: var(--text-sm);
 }
 .profile-bio strong { color: var(--c-text); }
 
-.profile-philosophy { margin-top: var(--space-6); }
-.profile-philosophy h3 {
+/* Bloque de filosofía pedagógica: pertenece al proyecto, no a una persona */
+.philosophy-block {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-2xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-s);
+}
+.philosophy-block h3 {
   font-size: var(--text-sm); font-weight: 700;
   text-transform: uppercase; letter-spacing: .08em;
-  color: var(--c-text-3); margin-bottom: var(--space-3);
+  color: var(--c-text-3); margin-bottom: var(--space-4);
+  text-align: center;
 }
 .philosophy-grid {
   display: grid; grid-template-columns: repeat(2, 1fr);
