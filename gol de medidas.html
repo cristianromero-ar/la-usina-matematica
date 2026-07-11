@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>⚽ Gol de Medidas — Convertí, pensá y hacé el gol</title>
+<meta name="description" content="Juego educativo de matemática: conversión de unidades de longitud y ángulos, con estética de Mundial de fútbol.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ======================= FONDO DE ESTADIO ======================= -->
+<div class="stadium-bg" aria-hidden="true">
+  <div class="stadium-lights"></div>
+  <div class="confetti-layer" id="confettiLayer"></div>
+</div>
+
+<!-- ======================= PANTALLA: PORTADA / SELECCIÓN ======================= -->
+<section id="screen-menu" class="screen active">
+  <header class="menu-header">
+    <h1 class="logo">⚽ GOL DE MEDIDAS</h1>
+    <p class="tagline">"Convertí, pensá y hacé el gol"</p>
+  </header>
+
+  <div class="menu-body">
+    <h2 class="section-title">Elegí tu jugador/a</h2>
+    <div class="character-grid" id="characterGrid" role="list">
+      <!-- Las tarjetas de personaje se generan por JS -->
+    </div>
+
+    <h2 class="section-title">Elegí el nivel</h2>
+    <div class="level-grid" id="levelGrid" role="list">
+      <!-- Los niveles se generan por JS -->
+    </div>
+
+    <button id="btnStart" class="btn btn-primary btn-big" disabled>
+      Salir a la cancha ⚽
+    </button>
+  </div>
+
+  <footer class="menu-footer">
+    <button id="btnSoundMenu" class="btn-icon" title="Sonido">🔊</button>
+  </footer>
+</section>
+
+<!-- ======================= PANTALLA: JUEGO ======================= -->
+<section id="screen-game" class="screen">
+
+  <!-- HUD superior -->
+  <header class="hud">
+    <div class="hud-left">
+      <span class="hud-item" title="Nivel"><span class="hud-icon">🏆</span><span id="hudLevel">1</span></span>
+      <span class="hud-item" title="Goles"><span class="hud-icon">🥅</span><span id="hudGoals">0</span></span>
+      <span class="hud-item" title="Intentos"><span class="hud-icon">🎯</span><span id="hudAttempts">0</span></span>
+      <span class="hud-item" title="Racha"><span class="hud-icon">🔥</span><span id="hudStreak">0</span></span>
+    </div>
+    <div class="hud-center">
+      <span class="hud-item hud-score" title="Puntaje"><span class="hud-icon">⭐</span><span id="hudScore">0</span></span>
+    </div>
+    <div class="hud-right">
+      <span class="hud-item" title="Tiempo"><span class="hud-icon">⏱️</span><span id="hudTime">00:00</span></span>
+      <span class="hud-item" title="Precisión"><span class="hud-icon">📊</span><span id="hudAccuracy">0%</span></span>
+      <button id="btnSoundGame" class="btn-icon" title="Sonido">🔊</button>
+      <button id="btnMenu" class="btn-icon" title="Menú">☰</button>
+    </div>
+  </header>
+
+  <!-- Medallero flotante -->
+  <div id="medalTray" class="medal-tray" aria-live="polite"></div>
+
+  <!-- Cancha -->
+  <main class="pitch" id="pitch">
+    <div class="pitch-lines" aria-hidden="true"></div>
+
+    <!-- Jugador/a -->
+    <div class="player-wrap" id="playerWrap">
+      <div class="player-figure" id="playerFigure"></div>
+    </div>
+
+    <!-- Pelota -->
+    <div class="ball" id="ball">⚽</div>
+
+    <!-- Arco con arquero -->
+    <div class="goal-track" id="goalTrack">
+      <div class="goal-post" id="goalPost">
+        <div class="goal-net" aria-hidden="true"></div>
+        <div class="keeper-figure" id="keeperFigure"></div>
+      </div>
+    </div>
+
+    <!-- Cartel de mensaje / resultado -->
+    <div class="result-banner" id="resultBanner"></div>
+  </main>
+
+  <!-- Panel de desafío (conversión o ángulo) -->
+  <div class="challenge-dock" id="challengeDock">
+
+    <!-- DESAFÍO 1: CONVERSIÓN -->
+    <div class="challenge-card" id="cardConversion">
+      <div class="challenge-head">
+        <span class="challenge-badge">Desafío 1 · Potencia del disparo</span>
+        <button class="btn-hint" id="btnHintConv">💡 Pista (<span id="hintConvCount">3</span>)</button>
+      </div>
+      <p class="challenge-question" id="conversionQuestion">—</p>
+      <div class="options-grid" id="conversionOptions"></div>
+      <p class="hint-text" id="hintConvText"></p>
+    </div>
+
+    <!-- DESAFÍO 2: ÁNGULO -->
+    <div class="challenge-card" id="cardAngle">
+      <div class="challenge-head">
+        <span class="challenge-badge">Desafío 2 · Ángulo de tiro</span>
+        <button class="btn-hint" id="btnHintAngle">💡 Pista (<span id="hintAngleCount">3</span>)</button>
+      </div>
+      <p class="challenge-question">Elegí el ángulo (0°–90°) imaginando la trayectoria hacia el arco.</p>
+
+      <div class="protractor-wrap">
+        <svg id="protractorSvg" viewBox="0 0 300 170" class="protractor-svg"></svg>
+        <div class="angle-controls" id="angleNudge">
+          <button type="button" class="nudge-btn" data-delta="-5">−5°</button>
+          <button type="button" class="nudge-btn" data-delta="-1">−1°</button>
+          <span class="angle-readout">Ángulo: <strong id="angleReadout">—</strong></span>
+          <button type="button" class="nudge-btn" data-delta="1">+1°</button>
+          <button type="button" class="nudge-btn" data-delta="5">+5°</button>
+        </div>
+      </div>
+
+      <p class="hint-text" id="hintAngleText"></p>
+      <p class="angle-feedback" id="angleFeedback"></p>
+
+      <button class="btn btn-secondary" id="btnConfirmAngle" disabled>Confirmar ángulo</button>
+    </div>
+
+    <!-- BOTÓN DE REMATE -->
+    <button class="btn btn-primary btn-shoot" id="btnShoot" disabled>¡REMATAR! ⚽</button>
+
+    <!-- Panel post-jugada -->
+    <div class="after-shot" id="afterShot">
+      <p id="afterShotText"></p>
+      <button class="btn btn-primary" id="btnNextRound">Siguiente jugada ▶</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PANTALLA: FIN / RESUMEN ======================= -->
+<section id="screen-summary" class="screen">
+  <div class="summary-card">
+    <h2>Fin del partido ⚽🏆</h2>
+    <div class="summary-grid" id="summaryGrid"></div>
+    <div class="summary-medals" id="summaryMedals"></div>
+    <div class="summary-actions">
+      <button class="btn btn-primary" id="btnPlayAgain">Jugar de nuevo</button>
+      <button class="btn btn-secondary" id="btnBackMenu">Volver al menú</button>
+    </div>
+  </div>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
