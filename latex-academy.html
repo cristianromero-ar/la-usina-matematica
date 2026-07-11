@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tipografía — Academia de LaTeX</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b2430;
+    --ink-soft:#3c4a5c;
+    --paper:#f6f4ee;
+    --paper-raised:#ffffff;
+    --rule:#dcd6c8;
+    --accent:#2f6f5e;       /* deep manuscript teal-green */
+    --accent-dark:#204a3f;
+    --accent-soft:#e2efe9;
+    --amber:#c9862b;        /* xp/gamification highlight */
+    --amber-soft:#f6e9d3;
+    --danger:#b0483f;
+    --danger-soft:#f6e3e0;
+    --locked:#b7b2a3;
+    --radius:14px;
+    --shadow: 0 1px 2px rgba(27,36,48,0.06), 0 6px 18px rgba(27,36,48,0.07);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(180deg, rgba(27,36,48,0.02), rgba(27,36,48,0) 220px),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'Source Serif 4', serif;}
+  code, .mono, .code-block, textarea.code-input{font-family:'JetBrains Mono', monospace;}
+
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  ::selection{background:var(--accent-soft);}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px;
+    background:rgba(246,244,238,0.88);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--rule);
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:9px;
+    background:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff; font-family:'Source Serif 4',serif; font-weight:700; font-size:18px;
+    box-shadow: var(--shadow);
+  }
+  .brand-name{font-size:15px; letter-spacing:0.02em; font-weight:600;}
+  .brand-sub{font-size:11px; color:var(--ink-soft); font-family:'JetBrains Mono',monospace; letter-spacing:0.03em;}
+
+  .stats{display:flex; align-items:center; gap:16px;}
+  .stat{
+    display:flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:600;
+    padding:6px 10px; border-radius:999px; background:var(--paper-raised); border:1px solid var(--rule);
+  }
+  .stat.xp{color:var(--amber-soft ? var(--amber): var(--amber)); color:var(--amber); border-color:#e7cfa0;background:var(--amber-soft);}
+  .stat.streak{color:var(--danger); background:var(--danger-soft); border-color:#e6c2bc;}
+  .stat.level{color:var(--accent-dark); background:var(--accent-soft); border-color:#bcdccf;}
+
+  .nav-tabs{display:flex; gap:6px;}
+  .nav-tab{
+    padding:8px 14px; border-radius:999px; border:1px solid transparent;
+    background:transparent; font-size:13px; font-weight:600; color:var(--ink-soft);
+  }
+  .nav-tab.active{ background:var(--ink); color:var(--paper); }
+
+  /* ---------- Layout ---------- */
+  .app{max-width:1080px; margin:0 auto; padding:28px 20px 80px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Path view ---------- */
+  .hero{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
+    margin-bottom:34px; padding-bottom:18px; border-bottom:1px solid var(--rule);
+    flex-wrap:wrap;
+  }
+  .hero h1{font-size:32px; margin:0 0 6px; font-weight:700;}
+  .hero p{margin:0; color:var(--ink-soft); font-size:14.5px; max-width:520px; line-height:1.55;}
+  .hero-badge-row{display:flex; gap:8px;}
+  .mini-badge{
+    width:38px;height:38px;border-radius:10px; display:flex;align-items:center;justify-content:center;
+    font-size:17px; background:var(--paper-raised); border:1px solid var(--rule); opacity:0.35;
+  }
+  .mini-badge.earned{opacity:1; background:var(--amber-soft); border-color:#e7cfa0; box-shadow:var(--shadow);}
+
+  .path{position:relative; padding-left:6px;}
+  .level-block{margin-bottom:46px; position:relative;}
+  .level-header{
+    display:flex; align-items:center; gap:12px; margin-bottom:16px;
+  }
+  .level-index{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft);
+    background:var(--paper-raised); border:1px solid var(--rule); padding:3px 9px; border-radius:999px;
+  }
+  .level-title{font-size:19px; font-weight:700; font-family:'Source Serif 4',serif;}
+  .level-progress-track{
+    flex:1; height:6px; background:var(--rule); border-radius:999px; overflow:hidden; max-width:220px;
+  }
+  .level-progress-fill{height:100%; background:var(--accent); border-radius:999px; transition:width .4s ease;}
+
+  .lesson-row{
+    display:flex; gap:14px; flex-wrap:wrap;
+    padding-left:8px; border-left:2px solid var(--rule); margin-left:6px;
+  }
+  .lesson-node{
+    width:168px; padding:16px 14px; border-radius:var(--radius);
+    background:var(--paper-raised); border:1px solid var(--rule); box-shadow:var(--shadow);
+    text-align:left; transition:transform .15s ease, box-shadow .15s ease;
+    display:flex; flex-direction:column; gap:8px; position:relative;
+  }
+  .lesson-node:hover:not(.locked){transform:translateY(-3px); box-shadow:0 10px 24px rgba(27,36,48,0.12);}
+  .lesson-node.locked{opacity:0.5; cursor:not-allowed;}
+  .lesson-node.done{border-color:#bcdccf; background:linear-gradient(180deg,#fff,var(--accent-soft) 220%);}
+  .lesson-icon{
+    width:32px;height:32px;border-radius:9px; display:flex;align-items:center;justify-content:center;
+    background:var(--accent-soft); color:var(--accent-dark); font-weight:700; font-size:14px; font-family:'JetBrains Mono',monospace;
+  }
+  .lesson-node.locked .lesson-icon{background:#ece9df; color:var(--locked);}
+  .lesson-node.done .lesson-icon{background:var(--accent); color:#fff;}
+  .lesson-name{font-size:13.5px; font-weight:600; line-height:1.3;}
+  .lesson-meta{font-size:11px; color:var(--ink-soft); font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- Lesson view ---------- */
+  .lesson-wrap{max-width:760px; margin:0 auto;}
+  .back-link{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;
+    color:var(--ink-soft); margin-bottom:18px; background:none; border:none; padding:0;
+  }
+  .back-link:hover{color:var(--ink);}
+  .lesson-title{font-size:26px; font-weight:700; margin:0 0 4px;}
+  .lesson-eyebrow{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent-dark); letter-spacing:0.03em; text-transform:uppercase; margin-bottom:6px; display:block;}
+
+  .section-block{margin-top:30px;}
+  .section-label{
+    font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:10px; font-family:'JetBrains Mono',monospace;
+  }
+  .theory-text{font-size:15px; line-height:1.7; color:var(--ink);}
+  .theory-text code{background:var(--accent-soft); color:var(--accent-dark); padding:1px 6px; border-radius:5px; font-size:0.92em;}
+
+  .code-block{
+    background:var(--ink); color:#eae6da; border-radius:12px; padding:16px 18px;
+    font-size:13.5px; line-height:1.7; overflow-x:auto; white-space:pre;
+  }
+  .code-block .kw{color:#7ad3b6;}
+  .preview-box{
+    background:var(--paper-raised); border:1px solid var(--rule); border-radius:12px;
+    padding:18px 20px; margin-top:10px; font-size:16px;
+  }
+  .example-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:640px){.example-grid{grid-template-columns:1fr;}}
+
+  .tip-box, .warn-box{
+    border-radius:12px; padding:12px 16px; font-size:13.5px; line-height:1.55; margin-top:14px;
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .tip-box{background:var(--accent-soft); color:var(--accent-dark);}
+  .warn-box{background:var(--danger-soft); color:var(--danger);}
+
+  .exercise-card{
+    background:var(--paper-raised); border:1px solid var(--rule); border-radius:16px; padding:22px;
+    margin-top:14px; box-shadow:var(--shadow);
+  }
+  .exercise-prompt{font-size:14.5px; margin-bottom:14px; line-height:1.6;}
+
+  .editor-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:700px){.editor-grid{grid-template-columns:1fr;}}
+  .editor-col-label{
+    font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:6px; font-family:'JetBrains Mono',monospace;
+  }
+  .preview-box-live{min-height:110px; margin-top:0;}
+
+  textarea.code-input{
+    width:100%; min-height:110px; resize:vertical; border-radius:10px; border:1.5px solid var(--rule);
+    padding:12px 14px; font-size:13.5px; line-height:1.65; background:#fdfcf8; color:var(--ink);
+  }
+  textarea.code-input:focus{outline:none; border-color:var(--accent);}
+  .exercise-actions{display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap;}
+  .btn{
+    border-radius:10px; padding:10px 18px; font-size:13.5px; font-weight:600; border:1.5px solid transparent;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-ghost{background:transparent; border-color:var(--rule); color:var(--ink-soft);}
+  .btn-ghost:hover{border-color:var(--ink-soft); color:var(--ink);}
+  .btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+  .feedback{margin-top:14px; border-radius:12px; padding:14px 16px; font-size:13.5px; line-height:1.6;}
+  .feedback.ok{background:var(--accent-soft); color:var(--accent-dark);}
+  .feedback.bad{background:var(--danger-soft); color:var(--danger);}
+  .feedback ul{margin:6px 0 0; padding-left:18px;}
+
+  /* ---------- Vista previa renderizada (mini LaTeX -> HTML) ---------- */
+  .tex-preview-empty{color:var(--locked); font-size:13.5px; font-style:italic;}
+  .tex-rendered{font-size:15px; line-height:1.75; color:var(--ink); word-wrap:break-word;}
+  .tex-rendered .katex{font-size:1.05em;}
+  .tex-rendered .katex-display{margin:10px 0;}
+  .tex-error{color:var(--danger); font-family:'JetBrains Mono',monospace; font-size:0.85em;}
+  .tex-parbreak{height:12px;}
+  .tex-chapter{font-size:22px; margin:10px 0 8px; font-weight:700;}
+  .tex-section{font-size:19px; margin:10px 0 6px; font-weight:700;}
+  .tex-subsection{font-size:16px; margin:8px 0 5px; font-weight:700;}
+  .tex-subsubsection{font-size:14.5px; margin:8px 0 4px; font-weight:700; color:var(--ink-soft);}
+  .tex-list{margin:6px 0; padding-left:22px;}
+  .tex-list li{margin:3px 0;}
+  .tex-table{border-collapse:collapse; margin:10px 0; font-size:14px;}
+  .tex-table td{border:1px solid var(--rule); padding:6px 12px;}
+  .tex-figure-placeholder, .tex-render-placeholder, .tex-toc-placeholder{
+    background:var(--paper); border:1.5px dashed var(--rule); border-radius:10px;
+    padding:16px; margin:10px 0; font-size:13px; color:var(--ink-soft); line-height:1.55;
+  }
+  .tex-caption{margin-top:6px; font-size:12px; font-style:italic;}
+  .tex-abstract{
+    background:var(--paper); border-left:3px solid var(--accent); padding:10px 14px;
+    margin:10px 0; font-size:13.5px; line-height:1.6; border-radius:0 8px 8px 0;
+  }
+  .tex-title-block{text-align:center; margin:6px 0 16px; padding-bottom:12px; border-bottom:1px solid var(--rule);}
+  .tex-doc-title{font-size:21px; font-weight:700; font-family:'Source Serif 4',serif;}
+  .tex-doc-author{font-size:13.5px; color:var(--ink-soft); margin-top:4px;}
+  .tex-appendix-marker{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--ink-soft);
+    letter-spacing:0.05em; margin:14px 0; text-transform:uppercase;
+  }
+  .tex-pagebreak{
+    text-align:center; font-size:11px; color:var(--locked); margin:14px 0;
+    border-top:1px dashed var(--rule); padding-top:8px;
+  }
+  .tex-ref-badge, .tex-cite-badge{
+    display:inline-block; background:var(--accent-soft); color:var(--accent-dark);
+    padding:1px 7px; border-radius:6px; font-size:0.82em; font-family:'JetBrains Mono',monospace;
+  }
+  .tex-cite-badge{background:var(--amber-soft); color:var(--amber);}
+  .tex-slide{
+    border:1.5px solid var(--rule); border-radius:12px; overflow:hidden; margin:10px 0;
+    box-shadow:var(--shadow);
+  }
+  .tex-slide-title{
+    background:var(--accent); color:#fff; padding:10px 16px; font-weight:700; font-size:15px;
+  }
+  .tex-slide-body{padding:14px 16px; font-size:14px;}
+  .tex-block{
+    border:1.5px solid #cfe3da; border-radius:10px; margin:10px 0; overflow:hidden;
+  }
+  .tex-block-title{background:var(--accent-soft); color:var(--accent-dark); padding:6px 14px; font-weight:700; font-size:13.5px;}
+  .tex-block > div:last-child{padding:10px 14px; font-size:13.5px;}
+
+  .lesson-footer{display:flex; justify-content:space-between; align-items:center; margin-top:36px; padding-top:18px; border-top:1px solid var(--rule);}
+
+  /* ---------- Playground view ---------- */
+  .playground{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:760px){.playground{grid-template-columns:1fr;}}
+  .pg-col h3{font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); font-family:'JetBrains Mono',monospace; margin:0 0 10px;}
+  .pg-editor{
+    width:100%; min-height:340px; border-radius:14px; border:1.5px solid var(--rule);
+    background:var(--ink); color:#eae6da; padding:18px; font-size:14px; line-height:1.7; resize:vertical;
+  }
+  .pg-editor:focus{outline:none; border-color:var(--accent);}
+  .pg-preview{
+    min-height:340px; border-radius:14px; border:1px solid var(--rule); background:var(--paper-raised);
+    padding:22px; font-size:17px; overflow:auto;
+  }
+  .pg-preview .katex-display{margin:10px 0;}
+  .pg-note{font-size:12.5px; color:var(--ink-soft); margin-top:10px; line-height:1.6;}
+
+  /* ---------- Badges modal ---------- */
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--paper); padding:14px 22px; border-radius:12px;
+    font-size:13.5px; font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    opacity:0; pointer-events:none; transition:all .35s cubic-bezier(.2,.9,.3,1.2); z-index:100;
+    display:flex; align-items:center; gap:10px;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .snippet-btn{
+    background:none;border:none; color:var(--accent-dark); font-size:11px; font-family:'JetBrains Mono',monospace;
+    text-decoration:underline; padding:0; margin-top:8px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+  @media (max-width:640px){
+    .topbar{padding:12px 14px; flex-wrap:wrap; gap:10px;}
+    .stats{gap:8px;}
+    .hero h1{font-size:26px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">T</div>
+    <div>
+      <div class="brand-name">Tipografía</div>
+      <div class="brand-sub">academia de LaTeX</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-tab="path">Ruta</button>
+    <button class="nav-tab" data-tab="playground">Editor libre</button>
+  </div>
+  <div class="stats">
+    <div class="stat xp">✦ <span id="xp-count">0</span> XP</div>
+    <div class="stat streak">🔥 <span id="streak-count">0</span></div>
+    <div class="stat level">Nv. <span id="level-count">1</span></div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ================= PATH VIEW ================= -->
+  <div class="view active" id="view-path">
+    <div class="hero">
+      <div>
+        <h1>Aprendé LaTeX, un paso a la vez</h1>
+        <p>Cuatro niveles, ejercicios corregidos al instante y vista previa matemática real. Completá cada lección para desbloquear la siguiente.</p>
+      </div>
+      <div class="hero-badge-row" id="badge-row"></div>
+    </div>
+    <div class="path" id="path-root"></div>
+  </div>
+
+  <!-- ================= LESSON VIEW ================= -->
+  <div class="view" id="view-lesson">
+    <div class="lesson-wrap">
+      <button class="back-link" id="back-to-path">← Volver a la ruta</button>
+      <span class="lesson-eyebrow" id="lesson-eyebrow"></span>
+      <h2 class="lesson-title" id="lesson-title"></h2>
+      <div id="lesson-body"></div>
+      <div class="lesson-footer">
+        <button class="btn btn-ghost" id="prev-lesson-btn">← Lección anterior</button>
+        <button class="btn btn-primary" id="next-lesson-btn">Siguiente lección →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PLAYGROUND VIEW ================= -->
+  <div class="view" id="view-playground">
+    <div class="hero">
+      <div>
+        <h1>Editor libre</h1>
+        <p>Escribí código matemático de LaTeX y mirá el resultado tipografiado en tiempo real. Ideal para probar símbolos sueltos antes de usarlos en tus documentos.</p>
+      </div>
+    </div>
+    <div class="playground">
+      <div class="pg-col">
+        <h3>Código LaTeX</h3>
+        <textarea class="pg-editor mono" id="pg-input" spellcheck="false"></textarea>
+        <p class="pg-note">Esta vista previa interpreta en vivo texto, matemática, secciones, listas, tablas y más. Lo único que no puede mostrar es lo que necesita un motor LaTeX real corriendo en un servidor —como TikZ, PGFPlots o imágenes— porque eso no corre en el navegador (en esos casos vas a ver un recuadro aclarándolo).</p>
+      </div>
+      <div class="pg-col">
+        <h3>Resultado</h3>
+        <div class="pg-preview" id="pg-preview"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   DATA
+========================================================= */
+const LEVELS = [
+  {
+    id: 1,
+    title: "¿Qué es LaTeX?",
+    lessons: [
+      {
+        id: "1.1",
+        name: "Un mundo sin Word",
+        theory: `LaTeX no es un procesador de texto como Word: es un <strong>sistema de composición tipográfica</strong>. Vos escribís código de texto plano describiendo <em>qué es</em> cada cosa (un título, una fórmula, una tabla) y un programa llamado <strong>motor LaTeX</strong> se encarga de tipografiarlo con reglas profesionales: espaciado, numeración, alineación de fórmulas, todo automático.`,
+        example: `% Esto es un comentario, LaTeX lo ignora\n% El motor LaTeX convierte código en un documento tipografiado`,
+        preview: null,
+        tip: "La ventaja frente a Word: nunca tenés que arrastrar una imagen a mano ni pelear con la numeración de ecuaciones. Vos describís, LaTeX decide el resultado visual.",
+        exercise: {
+          prompt: "Un comentario en LaTeX empieza con un símbolo específico. Escribí una línea que sea un comentario que diga <code>esto es un comentario</code>.",
+          starter: "",
+          solution: `% esto es un comentario`,
+          checks: [
+            { re: /^\s*%/, label: "La línea empieza con %" },
+            { re: /esto es un comentario/i, label: "Contiene el texto \"esto es un comentario\"" }
+          ]
+        }
+      },
+      {
+        id: "1.2",
+        name: "¿Para qué sirve?",
+        theory: `LaTeX se usa donde la precisión tipográfica importa: <strong>tesis</strong>, <strong>papers científicos</strong>, <strong>exámenes de matemática</strong>, <strong>libros técnicos</strong>. Es el estándar en física, matemática e ingeniería porque tipografía fórmulas complejas —integrales, matrices, sumatorias— mejor que cualquier otro sistema.`,
+        example: `\\documentclass{article}\n\\begin{document}\nMi primer documento en LaTeX.\n\\end{document}`,
+        tip: "No necesitás instalar nada para practicar acá: todos los ejercicios de esta academia corren en el navegador.",
+        exercise: {
+          prompt: "Todo documento LaTeX necesita declarar su tipo con <code>\\documentclass{...}</code>. Escribí la línea que declara la clase <code>article</code>.",
+          starter: "",
+          solution: `\\documentclass{article}`,
+          checks: [
+            { re: /\\documentclass\s*\{\s*article\s*\}/, label: "Usa \\documentclass{article}" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: "Tu primer documento",
+    lessons: [
+      {
+        id: "2.1",
+        name: "documentclass, begin y end",
+        theory: `Todo documento tiene un <strong>preámbulo</strong> (antes de <code>\\begin{document}</code>, donde se configuran paquetes y opciones) y un <strong>cuerpo</strong> (entre <code>\\begin{document}</code> y <code>\\end{document}</code>, donde va el contenido real). Nada de lo que escribas fuera de esas etiquetas se va a ver en el resultado.`,
+        example: `\\documentclass{article}\n\n\\begin{document}\nHola, mundo.\n\\end{document}`,
+        tip: "Si te olvidás el \\end{document}, el motor LaTeX va a marcar error de compilación. Cada \\begin necesita su \\end correspondiente.",
+        exercise: {
+          prompt: "Completá un documento mínimo válido: declará la clase <code>article</code>, abrí el cuerpo, escribí el texto <code>Hola LaTeX</code> y cerralo correctamente.",
+          starter: "\\documentclass{article}\n\n",
+          solution: `\\documentclass{article}
+
+\\begin{document}
+Hola LaTeX
+\\end{document}`,
+          checks: [
+            { re: /\\documentclass\s*\{\s*article\s*\}/, label: "Declara \\documentclass{article}" },
+            { re: /\\begin\s*\{\s*document\s*\}/, label: "Abre \\begin{document}" },
+            { re: /Hola LaTeX/, label: "Incluye el texto \"Hola LaTeX\"" },
+            { re: /\\end\s*\{\s*document\s*\}/, label: "Cierra con \\end{document}" }
+          ]
+        }
+      },
+      {
+        id: "2.2",
+        name: "Saltos, espacios y comentarios",
+        theory: `LaTeX ignora los saltos de línea simples y los espacios múltiples: los trata como un solo espacio. Para forzar un párrafo nuevo, dejá una <strong>línea en blanco</strong>. Para forzar un salto de línea sin nuevo párrafo, usá <code>\\\\</code>. Y como ya viste, todo lo que sigue a <code>%</code> es un comentario que no aparece en el resultado.`,
+        example: `Primera línea.\\\\\nSegunda línea, mismo párrafo.\n\nNuevo párrafo tras la línea en blanco.\n% este comentario no se ve`,
+        tip: "Los espacios y saltos de línea repetidos no importan para LaTeX; lo que importa es la estructura que vos declarás con comandos.",
+        exercise: {
+          prompt: "Escribí dos líneas dentro del mismo párrafo usando un salto de línea forzado, y después un comentario aclarando que ahí termina el ejercicio.",
+          starter: "",
+          solution: `Primera línea.\\\\
+Segunda línea, mismo párrafo.
+% fin del ejercicio`,
+          checks: [
+            { re: /\\\\/, label: "Usa \\\\ para forzar un salto de línea" },
+            { re: /^\s*%/m, label: "Incluye al menos un comentario con %" }
+          ]
+        }
+      },
+      {
+        id: "2.3",
+        name: "Caracteres especiales",
+        theory: `Algunos símbolos tienen un significado especial en LaTeX y no se pueden escribir directo: <code>%</code>, <code>$</code>, <code>&</code>, <code>#</code>, <code>_</code>, <code>{</code>, <code>}</code>. Para mostrarlos literalmente hay que escaparlos con una barra invertida, por ejemplo <code>\\%</code> para mostrar un signo de porcentaje real.`,
+        example: `El descuento es del 20\\%.\nEl precio en dólares: \\$50.`,
+        tip: "Si tu compilación falla con un error extraño cerca de un símbolo raro, revisá si te olvidaste de escapar un carácter especial.",
+        exercise: {
+          prompt: "Escribí una oración que muestre el texto <code>50%</code> tal cual (como carácter literal, no como comentario).",
+          starter: "",
+          solution: `El precio es 50\\%.`,
+          checks: [
+            { re: /\\%/, label: "Escapa el signo de porcentaje con \\%" },
+            { re: /50\\%/, label: "Muestra el número 50 seguido del % escapado" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 3,
+    title: "Formato de texto",
+    lessons: [
+      {
+        id: "3.1",
+        name: "Negrita, itálica y subrayado",
+        theory: `Tres comandos cubren el énfasis básico: <code>\\textbf{...}</code> para <strong>negrita</strong>, <code>\\textit{...}</code> para <em>itálica</em>, y <code>\\underline{...}</code> para subrayado. Todos envuelven el texto entre llaves.`,
+        example: `Esto es \\textbf{negrita}, esto es \\textit{itálica}\ny esto está \\underline{subrayado}.`,
+        tip: "Evitá abusar de estos comandos: en tipografía profesional, la itálica se reserva para énfasis puntual o términos técnicos, no para oraciones enteras.",
+        exercise: {
+          prompt: "Escribí una frase donde la palabra <code>importante</code> esté en negrita y la palabra <code>opcional</code> esté en itálica.",
+          starter: "",
+          solution: `Esto es \\textbf{importante} y esto es \\textit{opcional}.`,
+          checks: [
+            { re: /\\textbf\{[^}]*importante[^}]*\}/, label: "\"importante\" está dentro de \\textbf{...}" },
+            { re: /\\textit\{[^}]*opcional[^}]*\}/, label: "\"opcional\" está dentro de \\textit{...}" }
+          ]
+        }
+      },
+      {
+        id: "3.2",
+        name: "Secciones y tabla de contenidos",
+        theory: `La estructura de un documento largo se organiza con <code>\\section{...}</code>, <code>\\subsection{...}</code> y <code>\\subsubsection{...}</code>. LaTeX numera estos títulos automáticamente. Para generar una tabla de contenidos completa, alcanza con escribir <code>\\tableofcontents</code> una vez.`,
+        example: `\\tableofcontents\n\n\\section{Introducción}\n\\subsection{Motivación}\nTexto de la subsección.\n\n\\section{Desarrollo}`,
+        tip: "Necesitás compilar dos veces para que la tabla de contenidos muestre los números de página correctos; es normal en LaTeX.",
+        exercise: {
+          prompt: "Creá la estructura de un documento con una sección llamada <code>Introducción</code> y, dentro, una subsección llamada <code>Objetivos</code>.",
+          starter: "",
+          solution: `\\section{Introducción}
+\\subsection{Objetivos}`,
+          checks: [
+            { re: /\\section\{\s*Introducción\s*\}/, label: "Tiene \\section{Introducción}" },
+            { re: /\\subsection\{\s*Objetivos\s*\}/, label: "Tiene \\subsection{Objetivos}" }
+          ]
+        }
+      },
+      {
+        id: "3.3",
+        name: "Listas",
+        theory: `Hay dos tipos de lista principales: <code>itemize</code> para viñetas y <code>enumerate</code> para numeración automática. Cada elemento se marca con <code>\\item</code>.`,
+        example: `\\begin{itemize}\n  \\item Primer punto\n  \\item Segundo punto\n\\end{itemize}\n\n\\begin{enumerate}\n  \\item Paso uno\n  \\item Paso dos\n\\end{enumerate}`,
+        tip: "Podés anidar listas dentro de listas: LaTeX ajusta automáticamente el estilo de viñeta o numeración en cada nivel.",
+        exercise: {
+          prompt: "Creá una lista numerada (<code>enumerate</code>) con al menos dos elementos.",
+          starter: "",
+          solution: `\\begin{enumerate}
+\\item Paso uno
+\\item Paso dos
+\\end{enumerate}`,
+          checks: [
+            { re: /\\begin\{enumerate\}/, label: "Abre \\begin{enumerate}" },
+            { re: /\\item[\s\S]*\\item/, label: "Tiene al menos dos \\item" },
+            { re: /\\end\{enumerate\}/, label: "Cierra \\end{enumerate}" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 4,
+    title: "Modo matemático",
+    lessons: [
+      {
+        id: "4.1",
+        name: "Entrar en modo matemático",
+        theory: `Para tipografiar matemática necesitás entrar en "modo matemático". La forma más simple: rodear la expresión con signos de pesos, <code>$...$</code>, para fórmulas dentro del texto. Dentro de ese modo, letras como <code>x</code> o <code>y</code> se muestran en itálica automáticamente, como corresponde a variables.`,
+        example: `La ecuación $x + y = 10$ tiene infinitas soluciones.`,
+        katexPreview: `x + y = 10`,
+        tip: "Si escribís una fórmula fuera del modo matemático (sin los $), LaTeX la va a tratar como texto normal y se va a ver mal.",
+        exercise: {
+          prompt: "Escribí una oración que incluya, en modo matemático, la expresión <code>a^2 + b^2 = c^2</code>.",
+          starter: "",
+          solution: `El teorema dice que $a^2 + b^2 = c^2$.`,
+          checks: [
+            { re: /\$[^$]*a\^2[^$]*b\^2[^$]*c\^2[^$]*\$/, label: "La expresión está entre $...$ con a^2 + b^2 = c^2" }
+          ]
+        }
+      },
+      {
+        id: "4.2",
+        name: "Fracciones, potencias, raíces e índices",
+        theory: `Cuatro comandos esenciales: <code>\\frac{a}{b}</code> para fracciones, <code>x^{n}</code> para potencias, <code>x_{n}</code> para subíndices, y <code>\\sqrt{x}</code> para raíces (agregá <code>[n]</code> antes de la llave para raíz n-ésima: <code>\\sqrt[3]{x}</code>).`,
+        example: `$$\\frac{a}{b} + x^{2} - y_{1} + \\sqrt[3]{8}$$`,
+        katexPreview: `\\frac{a}{b} + x^{2} - y_{1} + \\sqrt[3]{8}`,
+        tip: "Si el exponente o el subíndice tiene más de un carácter, siempre hay que envolverlo en llaves: x^{10}, no x^10 (esto último solo tipografiaría el 1 como exponente).",
+        exercise: {
+          prompt: "Escribí, en modo matemático, la fracción <code>1/2</code> sumada a la raíz cuadrada de <code>x</code>.",
+          starter: "",
+          solution: `$\\frac{1}{2} + \\sqrt{x}$`,
+          checks: [
+            { re: /\\frac\{\s*1\s*\}\{\s*2\s*\}/, label: "Usa \\frac{1}{2}" },
+            { re: /\\sqrt\{\s*x\s*\}/, label: "Usa \\sqrt{x}" },
+            { re: /\$[\s\S]*\$/, label: "Todo está dentro de modo matemático ($...$)" }
+          ]
+        }
+      },
+      {
+        id: "4.3",
+        name: "Letras griegas y operadores",
+        theory: `Las letras griegas se escriben con su nombre en inglés precedido de barra invertida: <code>\\alpha</code>, <code>\\beta</code>, <code>\\pi</code>, <code>\\theta</code>, <code>\\Delta</code> (mayúscula si el comando empieza con mayúscula). Operadores comunes: <code>\\times</code>, <code>\\div</code>, <code>\\leq</code>, <code>\\geq</code>, <code>\\neq</code>, <code>\\approx</code>, <code>\\infty</code>.`,
+        example: `$$\\alpha + \\beta \\leq \\pi \\quad \\text{y} \\quad \\Delta x \\neq \\infty$$`,
+        katexPreview: `\\alpha + \\beta \\leq \\pi \\quad y \\quad \\Delta x \\neq \\infty`,
+        tip: "\\Pi (mayúscula, la letra) es distinto de \\pi (minúscula, el número 3.14...); prestá atención a la capitalización.",
+        exercise: {
+          prompt: "Escribí, en modo matemático, la expresión: <code>alpha</code> es menor o igual que <code>pi</code>.",
+          starter: "",
+          solution: `$\\alpha \\leq \\pi$`,
+          checks: [
+            { re: /\\alpha/, label: "Usa \\alpha" },
+            { re: /\\leq/, label: "Usa \\leq (menor o igual)" },
+            { re: /\\pi/, label: "Usa \\pi" }
+          ]
+        }
+      },
+      {
+        id: "4.4",
+        name: "Sumatorias, integrales y límites",
+        theory: `Estas estructuras llevan límites arriba y abajo del símbolo: <code>\\sum_{i=1}^{n}</code> para sumatoria, <code>\\int_{a}^{b}</code> para integral definida, y <code>\\lim_{x \\to \\infty}</code> para límites. En modo <code>$$...$$</code> (fórmula destacada, en su propia línea) estos símbolos se muestran más grandes que en modo texto.`,
+        example: `$$\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2} \\qquad \\int_{0}^{1} x^2\\,dx = \\frac{1}{3}$$`,
+        katexPreview: `\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2} \\qquad \\int_{0}^{1} x^2\\,dx = \\frac{1}{3}`,
+        tip: "Usá $$...$$ (o \\[...\\]) para fórmulas importantes que merecen su propia línea, y $...$ solo para expresiones cortas dentro del texto.",
+        exercise: {
+          prompt: "Escribí, en modo matemático, una sumatoria de <code>i</code> con <code>i</code> yendo de <code>1</code> a <code>n</code>.",
+          starter: "",
+          solution: `$\\sum_{i=1}^{n} i$`,
+          checks: [
+            { re: /\\sum_\{\s*i\s*=\s*1\s*\}\^\{\s*n\s*\}/, label: "Usa \\sum_{i=1}^{n}" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 5,
+    title: "Álgebra lineal",
+    lessons: [
+      {
+        id: "5.1",
+        name: "Matrices",
+        theory: `Las matrices se escriben con entornos dentro del modo matemático: <code>pmatrix</code> las rodea con paréntesis, <code>bmatrix</code> con corchetes y <code>vmatrix</code> con barras verticales. Dentro, cada columna se separa con <code>&amp;</code> y cada fila con <code>\\\\</code>.`,
+        example: `$$\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}$$`,
+        katexPreview: `\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}`,
+        tip: "Usá bmatrix (corchetes) para vectores y transformaciones en contextos de álgebra lineal aplicada; pmatrix (paréntesis) es la convención más clásica en textos de matemática pura.",
+        exercise: {
+          prompt: "Escribí, en modo matemático, una matriz de 2×2 usando <code>pmatrix</code> con los números 1, 2 en la primera fila y 3, 4 en la segunda.",
+          starter: "",
+          solution: `$\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$`,
+          checks: [
+            { re: /\\begin\{pmatrix\}/, label: "Abre \\begin{pmatrix}" },
+            { re: /1\s*&\s*2/, label: "Primera fila: 1 & 2" },
+            { re: /3\s*&\s*4/, label: "Segunda fila: 3 & 4" },
+            { re: /\\\\/, label: "Separa las filas con \\\\" },
+            { re: /\\end\{pmatrix\}/, label: "Cierra \\end{pmatrix}" }
+          ]
+        }
+      },
+      {
+        id: "5.2",
+        name: "Determinantes",
+        theory: `El determinante de una matriz suele notarse con barras verticales — el entorno <code>vmatrix</code> — o con el comando <code>\\det</code> aplicado a una <code>pmatrix</code>. Ambas formas son válidas; la elección depende del estilo del documento.`,
+        example: `$$\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix} = ad - bc$$`,
+        katexPreview: `\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix} = ad - bc`,
+        tip: "vmatrix (barras) implica \"determinante de\" por convención visual; pmatrix (paréntesis) es solo \"la matriz\", sin evaluar nada.",
+        exercise: {
+          prompt: "Escribí, con notación de determinante (<code>vmatrix</code>), una matriz 2×2 con 5, 6 en la primera fila y 7, 8 en la segunda.",
+          starter: "",
+          solution: `$\\begin{vmatrix} 5 & 6 \\\\ 7 & 8 \\end{vmatrix}$`,
+          checks: [
+            { re: /\\begin\{vmatrix\}/, label: "Abre \\begin{vmatrix}" },
+            { re: /5\s*&\s*6/, label: "Primera fila: 5 & 6" },
+            { re: /7\s*&\s*8/, label: "Segunda fila: 7 & 8" },
+            { re: /\\end\{vmatrix\}/, label: "Cierra \\end{vmatrix}" }
+          ]
+        }
+      },
+      {
+        id: "5.3",
+        name: "Vectores",
+        theory: `Un vector se marca con una flecha usando <code>\\vec{v}</code>. Para un vector entre dos puntos, como el que va de A a B, se usa <code>\\overrightarrow{AB}</code>. También podés escribir un vector como una matriz columna con <code>pmatrix</code>.`,
+        example: `$$\\vec{v} = \\begin{pmatrix} 1 \\\\ 2 \\\\ 3 \\end{pmatrix}$$`,
+        katexPreview: `\\vec{v} = \\begin{pmatrix} 1 \\\\ 2 \\\\ 3 \\end{pmatrix}`,
+        tip: "En física es común usar \\vec{v}; en textos más algebraicos a veces se prefiere negrita con \\mathbf{v}. Ambas convenciones son correctas, elegí una y sé consistente en todo el documento.",
+        exercise: {
+          prompt: "Escribí <code>\\vec{u}</code> igualado a una matriz columna (pmatrix) de tres componentes: 4, 5, 6.",
+          starter: "",
+          solution: `$\\vec{u} = \\begin{pmatrix} 4 \\\\ 5 \\\\ 6 \\end{pmatrix}$`,
+          checks: [
+            { re: /\\vec\{u\}/, label: "Usa \\vec{u}" },
+            { re: /\\begin\{pmatrix\}/, label: "Abre \\begin{pmatrix}" },
+            { re: /4[\s\S]*\\\\[\s\S]*5[\s\S]*\\\\[\s\S]*6/, label: "Contiene 4, 5 y 6 en filas separadas por \\\\" }
+          ]
+        }
+      },
+      {
+        id: "5.4",
+        name: "Espacios vectoriales",
+        theory: `Para hablar de conjuntos numéricos se usa <code>\\mathbb{R}</code> (números reales), y con un exponente, <code>\\mathbb{R}^n</code>, para el espacio de n dimensiones. La pertenencia a un conjunto se nota con <code>\\in</code>, y un subconjunto con <code>\\subset</code>.`,
+        example: `$$\\vec{v} \\in \\mathbb{R}^3, \\quad W \\subset \\mathbb{R}^3$$`,
+        katexPreview: `\\vec{v} \\in \\mathbb{R}^3, \\quad W \\subset \\mathbb{R}^3`,
+        tip: "\\mathbb solo funciona con letras mayúsculas simples (R, N, Z, Q, C); no lo uses con palabras completas.",
+        exercise: {
+          prompt: "Escribí que el vector <code>\\vec{v}</code> pertenece (<code>\\in</code>) al espacio <code>\\mathbb{R}^n</code>.",
+          starter: "",
+          solution: `$\\vec{v} \\in \\mathbb{R}^n$`,
+          checks: [
+            { re: /\\vec\{v\}/, label: "Usa \\vec{v}" },
+            { re: /\\in/, label: "Usa \\in" },
+            { re: /\\mathbb\{R\}\^n/, label: "Usa \\mathbb{R}^n" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 6,
+    title: "Tablas",
+    lessons: [
+      {
+        id: "6.1",
+        name: "Tablas básicas: tabular",
+        theory: `El entorno <code>tabular</code> crea tablas. Al abrirlo declarás la alineación de cada columna entre llaves: <code>l</code> (izquierda), <code>c</code> (centro), <code>r</code> (derecha); una barra <code>|</code> entre letras dibuja una línea vertical. Las celdas se separan con <code>&amp;</code>, las filas terminan en <code>\\\\</code>, y <code>\\hline</code> dibuja una línea horizontal.`,
+        example: `\\begin{tabular}{|l|c|}\n\\hline\nNombre & Edad \\\\\n\\hline\nAna & 23 \\\\\n\\hline\n\\end{tabular}`,
+        tip: "tabular no calcula el ancho de las columnas automáticamente: se ajusta al contenido más ancho de cada una. Para control fino de ancho existe el paquete tabularx.",
+        exercise: {
+          prompt: "Creá una tabla de dos columnas (<code>l</code> y <code>c</code>) con encabezado <code>Producto</code> / <code>Precio</code> y una fila de datos, usando <code>\\hline</code> para separar.",
+          starter: "",
+          solution: `\\begin{tabular}{l c}
+\\hline
+Producto & Precio \\\\
+\\hline
+Libro & 10 \\\\
+\\hline
+\\end{tabular}`,
+          checks: [
+            { re: /\\begin\{tabular\}\{[^}]*l[^}]*c[^}]*\}/, label: "Declara columnas l y c" },
+            { re: /Producto\s*&\s*Precio/, label: "Encabezado: Producto & Precio" },
+            { re: /\\hline/, label: "Usa \\hline al menos una vez" },
+            { re: /\\end\{tabular\}/, label: "Cierra \\end{tabular}" }
+          ]
+        }
+      },
+      {
+        id: "6.2",
+        name: "Tablas complejas: multicolumn",
+        theory: `<code>\\multicolumn{n}{alineación}{contenido}</code> fusiona <code>n</code> columnas en una sola celda — útil para títulos que abarcan toda la tabla o subtítulos de sección.`,
+        example: `\\begin{tabular}{|c|c|c|}\n\\hline\n\\multicolumn{3}{|c|}{Resultados} \\\\\n\\hline\nA & B & C \\\\\n\\hline\n\\end{tabular}`,
+        tip: "El número dentro de \\multicolumn debe coincidir con la cantidad real de columnas fusionadas, o el resto de la tabla se va a desalinear.",
+        exercise: {
+          prompt: "Escribí una celda que fusione 2 columnas centradas con el texto <code>Total</code>.",
+          starter: "",
+          solution: `\\multicolumn{2}{c}{Total}`,
+          checks: [
+            { re: /\\multicolumn\{2\}\{c\}\{\s*Total\s*\}/, label: "Usa \\multicolumn{2}{c}{Total}" }
+          ]
+        }
+      },
+      {
+        id: "6.3",
+        name: "Combinar filas: multirow",
+        theory: `Para fusionar celdas verticalmente (varias filas) hace falta el paquete <code>multirow</code>, que no viene incluido por defecto: hay que agregar <code>\\usepackage{multirow}</code> en el preámbulo. Después se usa <code>\\multirow{n}{*}{contenido}</code>.`,
+        example: `% en el preámbulo: \\usepackage{multirow}\n\\begin{tabular}{|c|c|}\n\\hline\n\\multirow{2}{*}{Grupo A} & x \\\\\n & y \\\\\n\\hline\n\\end{tabular}`,
+        tip: "Si tu tabla necesita multirow y no compila, lo primero que hay que revisar es si el paquete fue cargado en el preámbulo.",
+        exercise: {
+          prompt: "Escribí una celda que fusione 2 filas con el contenido <code>Total</code>, usando <code>multirow</code>.",
+          starter: "",
+          solution: `\\multirow{2}{*}{Total}`,
+          checks: [
+            { re: /\\multirow\{2\}\{\*\}\{\s*Total\s*\}/, label: "Usa \\multirow{2}{*}{Total}" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 7,
+    title: "Imágenes",
+    lessons: [
+      {
+        id: "7.1",
+        name: "Insertar una imagen",
+        theory: `Para insertar imágenes se necesita el paquete <code>graphicx</code> (<code>\\usepackage{graphicx}</code>). El entorno <code>figure</code> envuelve la imagen para que LaTeX la posicione automáticamente, <code>\\includegraphics[width=...]{archivo}</code> la inserta, <code>\\centering</code> la centra y <code>\\caption{...}</code> le agrega un pie de foto numerado.`,
+        example: `\\begin{figure}[h]\n\\centering\n\\includegraphics[width=0.6\\textwidth]{grafico.png}\n\\caption{Un gráfico de ejemplo}\n\\end{figure}`,
+        tip: "El ancho relativo al texto, como 0.6\\textwidth, es más robusto que un ancho fijo en centímetros: se adapta si cambia el tamaño de página.",
+        exercise: {
+          prompt: "Insertá una imagen llamada <code>diagrama.png</code> dentro de un <code>figure</code>, con el pie de foto <code>Diagrama del sistema</code>.",
+          starter: "",
+          solution: `\\begin{figure}[h]
+\\centering
+\\includegraphics[width=0.6\\textwidth]{diagrama.png}
+\\caption{Diagrama del sistema}
+\\end{figure}`,
+          checks: [
+            { re: /\\begin\{figure\}/, label: "Abre \\begin{figure}" },
+            { re: /\\includegraphics(\[[^\]]*\])?\{\s*diagrama\.png\s*\}/, label: "Usa \\includegraphics{diagrama.png}" },
+            { re: /\\caption\{\s*Diagrama del sistema\s*\}/, label: "Usa \\caption{Diagrama del sistema}" }
+          ]
+        }
+      },
+      {
+        id: "7.2",
+        name: "Subfiguras",
+        theory: `Cuando querés mostrar varias imágenes lado a lado, cada una con su propio pie de foto, usás el paquete <code>subcaption</code> y un entorno <code>subfigure</code> por cada imagen, todos dentro de un mismo <code>figure</code> exterior.`,
+        example: `\\usepackage{subcaption}\n...\n\\begin{figure}\n  \\begin{subfigure}{0.45\\textwidth}\n    \\includegraphics[width=\\textwidth]{a.png}\n    \\caption{Antes}\n  \\end{subfigure}\n  \\begin{subfigure}{0.45\\textwidth}\n    \\includegraphics[width=\\textwidth]{b.png}\n    \\caption{Después}\n  \\end{subfigure}\n\\end{figure}`,
+        tip: "Los anchos de las subfiguras deben sumar menos de 1\\textwidth (más el espacio entre ellas) para que entren en la misma línea.",
+        exercise: {
+          prompt: "Escribí dos <code>subfigure</code>, con pies de foto <code>Antes</code> y <code>Después</code>.",
+          starter: "",
+          solution: `\\begin{figure}
+\\begin{subfigure}{0.45\\textwidth}
+\\includegraphics[width=\\textwidth]{a.png}
+\\caption{Antes}
+\\end{subfigure}
+\\begin{subfigure}{0.45\\textwidth}
+\\includegraphics[width=\\textwidth]{b.png}
+\\caption{Después}
+\\end{subfigure}
+\\end{figure}`,
+          checks: [
+            { re: /\\begin\{subfigure\}[\s\S]*\\begin\{subfigure\}/, label: "Tiene dos \\begin{subfigure}" },
+            { re: /\\caption\{\s*Antes\s*\}/, label: "Una dice \\caption{Antes}" },
+            { re: /\\caption\{\s*Después\s*\}/, label: "La otra dice \\caption{Después}" }
+          ]
+        }
+      },
+      {
+        id: "7.3",
+        name: "Referencias y etiquetas",
+        theory: `<code>\\label{clave}</code> le pone una etiqueta interna a una figura, sección o ecuación. Después, en cualquier parte del texto, <code>\\ref{clave}</code> inserta automáticamente el número correspondiente — y se actualiza solo si movés o agregás contenido. Por convención se prefijan las etiquetas: <code>fig:</code>, <code>sec:</code>, <code>eq:</code>.`,
+        example: `\\begin{figure}\n  ...\n  \\caption{Diagrama}\n  \\label{fig:diagrama}\n\\end{figure}\n\nComo se ve en la Figura \\ref{fig:diagrama}, el sistema...`,
+        tip: "Necesitás compilar dos veces para que \\ref muestre el número correcto: la primera compilación calcula las referencias, la segunda las inserta.",
+        exercise: {
+          prompt: "Etiquetá una figura con <code>fig:resultado</code> y después referenciala en una oración con <code>\\ref{fig:resultado}</code>.",
+          starter: "",
+          solution: `\\begin{figure}
+\\includegraphics{x.png}
+\\caption{Resultado}
+\\label{fig:resultado}
+\\end{figure}
+Como se ve en la Figura \\ref{fig:resultado}.`,
+          checks: [
+            { re: /\\label\{\s*fig:resultado\s*\}/, label: "Usa \\label{fig:resultado}" },
+            { re: /\\ref\{\s*fig:resultado\s*\}/, label: "Usa \\ref{fig:resultado} para referenciarla" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 8,
+    title: "TikZ: diagramas y figuras",
+    lessons: [
+      {
+        id: "8.1",
+        name: "Tu primer tikzpicture",
+        theory: `TikZ (<code>\\usepackage{tikz}</code>) dibuja gráficos vectoriales directamente en el PDF, sin imágenes externas. Todo dibujo va dentro de <code>\\begin{tikzpicture}...\\end{tikzpicture}</code>. El comando <code>\\draw</code> traza líneas entre coordenadas: <code>(0,0) -- (2,2)</code> dibuja una línea del punto (0,0) al (2,2).`,
+        example: `\\begin{tikzpicture}\n\\draw (0,0) -- (2,2);\n\\draw (0,2) -- (2,0);\n\\end{tikzpicture}`,
+        tip: "Esta lección enseña la sintaxis de TikZ. Para ver el dibujo ya renderizado necesitás compilar con un motor LaTeX completo (como el que usa Overleaf): eso corre en un servidor, no en el navegador.",
+        exercise: {
+          prompt: "Dibujá dos líneas que formen una X: de (0,0) a (2,2), y de (0,2) a (2,0).",
+          starter: "",
+          solution: `\\begin{tikzpicture}
+\\draw (0,0) -- (2,2);
+\\draw (0,2) -- (2,0);
+\\end{tikzpicture}`,
+          checks: [
+            { re: /\\draw\s*\(0,0\)\s*--\s*\(2,2\)/, label: "Línea de (0,0) a (2,2)" },
+            { re: /\\draw\s*\(0,2\)\s*--\s*\(2,0\)/, label: "Línea de (0,2) a (2,0)" }
+          ]
+        }
+      },
+      {
+        id: "8.2",
+        name: "Polígonos",
+        theory: `Para cerrar una figura y volver al punto de partida, terminá la secuencia de coordenadas con <code>-- cycle</code>. Encadenando varios <code>--</code> podés dibujar cualquier polígono: un triángulo son tres puntos, un pentágono cinco, y así.`,
+        example: `\\begin{tikzpicture}\n\\draw (0,0) -- (2,0) -- (1,1.5) -- cycle;\n\\end{tikzpicture}`,
+        tip: "rectangle es un atajo para rectángulos: \\draw (0,0) rectangle (2,1); dibuja uno sin necesidad de las cuatro esquinas.",
+        exercise: {
+          prompt: "Dibujá un triángulo conectando los puntos (0,0), (3,0) y (1.5,2), y cerrando la figura con <code>cycle</code>.",
+          starter: "",
+          solution: `\\begin{tikzpicture}
+\\draw (0,0) -- (3,0) -- (1.5,2) -- cycle;
+\\end{tikzpicture}`,
+          checks: [
+            { re: /\(0,0\)\s*--\s*\(3,0\)\s*--\s*\(1\.5,2\)\s*--\s*cycle/, label: "Conecta los tres puntos y cierra con -- cycle" }
+          ]
+        }
+      },
+      {
+        id: "8.3",
+        name: "Circunferencias",
+        theory: `<code>\\draw (x,y) circle (r);</code> dibuja una circunferencia centrada en <code>(x,y)</code> con radio <code>r</code>. Si querés que además tenga relleno de color, usá <code>\\filldraw[fill=color] (x,y) circle (r);</code>.`,
+        example: `\\begin{tikzpicture}\n\\draw (0,0) circle (1.5);\n\\filldraw[fill=gray!20] (3,0) circle (1);\n\\end{tikzpicture}`,
+        tip: "gray!20 significa \"gris al 20% de intensidad\": el número después del ! controla qué tan mezclado está el color con blanco.",
+        exercise: {
+          prompt: "Dibujá una circunferencia centrada en (1,1) con radio 2.",
+          starter: "",
+          solution: `\\begin{tikzpicture}
+\\draw (1,1) circle (2);
+\\end{tikzpicture}`,
+          checks: [
+            { re: /\\draw\s*\(1,1\)\s*circle\s*\(2\)/, label: "Usa \\draw (1,1) circle (2)" }
+          ]
+        }
+      },
+      {
+        id: "8.4",
+        name: "Vectores en TikZ",
+        theory: `Para dibujar flechas (vectores) se agrega la opción <code>-></code> entre corchetes antes de las coordenadas: <code>\\draw[->] (0,0) -- (2,1);</code>. Dentro de los mismos corchetes podés combinar más estilos separados por coma, como <code>thick</code> (línea gruesa) o un color.`,
+        example: `\\begin{tikzpicture}\n\\draw[->, thick, blue] (0,0) -- (2,1);\n\\draw[->, thick, red] (0,0) -- (1,2);\n\\end{tikzpicture}`,
+        tip: "El orden de las opciones dentro de los corchetes no importa: [->, thick, blue] es igual a [blue, ->, thick].",
+        exercise: {
+          prompt: "Dibujá un vector (flecha) grueso desde (0,0) hasta (3,1).",
+          starter: "",
+          solution: `\\begin{tikzpicture}
+\\draw[->, thick] (0,0) -- (3,1);
+\\end{tikzpicture}`,
+          checks: [
+            { re: /\\draw\[[^\]]*->[^\]]*\]\s*\(0,0\)\s*--\s*\(3,1\)/, label: "Usa \\draw[->, ...] (0,0) -- (3,1)" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 9,
+    title: "PGFPlots: gráficos de funciones",
+    lessons: [
+      {
+        id: "9.1",
+        name: "Tu primer gráfico",
+        theory: `PGFPlots (<code>\\usepackage{pgfplots}</code> + <code>\\pgfplotsset{compat=1.18}</code> en el preámbulo) grafica funciones matemáticas directamente, sin necesitar datos externos. Dentro de un <code>tikzpicture</code>, el entorno <code>axis</code> dibuja automáticamente ejes, marcas y grilla; adentro, <code>\\addplot {expresión};</code> traza la función.`,
+        example: `\\begin{tikzpicture}\n\\begin{axis}\n\\addplot {x^2};\n\\end{axis}\n\\end{tikzpicture}`,
+        tip: "Igual que con TikZ puro, esta lección enseña la sintaxis exacta. Ver el gráfico ya dibujado requiere compilar con un motor LaTeX completo, algo que no corre en el navegador.",
+        exercise: {
+          prompt: "Graficá la función <code>x^3</code> dentro de un entorno <code>axis</code>.",
+          starter: "",
+          solution: `\\begin{axis}
+\\addplot {x^3};
+\\end{axis}`,
+          checks: [
+            { re: /\\begin\{axis\}/, label: "Abre \\begin{axis}" },
+            { re: /\\addplot\s*\{\s*x\^3\s*\}/, label: "Usa \\addplot {x^3}" },
+            { re: /\\end\{axis\}/, label: "Cierra \\end{axis}" }
+          ]
+        }
+      },
+      {
+        id: "9.2",
+        name: "Dominio y estilos",
+        theory: `La opción <code>domain=min:max</code> (entre corchetes, antes de la llave con la expresión) controla el rango de valores de x que se grafican. <code>samples=n</code> regula cuántos puntos se calculan para dibujar la curva — más muestras dan una curva más suave. El color y grosor se ajustan igual que en TikZ: <code>[domain=-3:3, blue, thick]</code>.`,
+        example: `\\addplot[domain=-3:3, samples=100, blue, thick] {x^2 - 2};`,
+        tip: "Con funciones muy curvas (trigonométricas, exponenciales) conviene subir samples por encima del valor por defecto (25) para evitar que la curva se vea con quiebres.",
+        exercise: {
+          prompt: "Graficá <code>x^2</code> con dominio de -5 a 5, 50 muestras, en color rojo.",
+          starter: "",
+          solution: `\\addplot[domain=-5:5, samples=50, red] {x^2};`,
+          checks: [
+            { re: /domain\s*=\s*-5\s*:\s*5/, label: "Usa domain=-5:5" },
+            { re: /samples\s*=\s*50/, label: "Usa samples=50" },
+            { re: /red/, label: "Usa el color red" },
+            { re: /\{\s*x\^2\s*\}/, label: "Grafica la expresión x^2" }
+          ]
+        }
+      },
+      {
+        id: "9.3",
+        name: "Funciones por tramos",
+        theory: `PGFPlots no tiene una sintaxis para escribir una función por tramos en una sola línea: la forma correcta es agregar un <code>\\addplot</code> distinto por cada tramo, cada uno con su propio <code>domain=</code> restringido al intervalo correspondiente. Los distintos <code>\\addplot</code> dentro del mismo <code>axis</code> se dibujan sobre los mismos ejes, como una sola función combinada.`,
+        example: `\\begin{axis}\n\\addplot[domain=-3:0, blue] {-x};\n\\addplot[domain=0:3, red] {x^2};\n\\end{axis}`,
+        tip: "Si dos tramos no coinciden en el punto de unión, la curva se va a ver con un salto — revisá que ambas expresiones den el mismo valor en el límite compartido si tu función debe ser continua.",
+        exercise: {
+          prompt: "Dibujá una función por tramos: para dominio -2:0 usá <code>-x</code>, y para dominio 0:2 usá <code>x</code>.",
+          starter: "",
+          solution: `\\begin{axis}
+\\addplot[domain=-2:0, blue] {-x};
+\\addplot[domain=0:2, red] {x};
+\\end{axis}`,
+          checks: [
+            { re: /domain\s*=\s*-2\s*:\s*0[^;]*\{\s*-x\s*\}/, label: "Tramo 1: domain=-2:0 con {-x}" },
+            { re: /domain\s*=\s*0\s*:\s*2[^;]*\{\s*x\s*\}/, label: "Tramo 2: domain=0:2 con {x}" }
+          ]
+        }
+      },
+      {
+        id: "9.4",
+        name: "Trigonométricas y exponenciales",
+        theory: `Por defecto, PGFPlots interpreta los ángulos de las funciones trigonométricas en <strong>grados</strong>, no en radianes: <code>{sin(x)}</code> espera x en grados. Para usar radianes hay que envolver el argumento en <code>deg(...)</code>: <code>{sin(deg(x))}</code>. Las exponenciales se escriben con <code>exp(x)</code>.`,
+        example: `\\addplot[domain=0:360, blue] {sin(x)};\n\\addplot[domain=-2:2, red] {exp(x)};`,
+        tip: "Este es uno de los errores más comunes en PGFPlots: olvidar deg() y terminar graficando una función completamente distinta a la esperada por trabajar en la unidad equivocada.",
+        exercise: {
+          prompt: "Graficá <code>exp(x)</code> con dominio -1 a 1, en color verde (<code>green</code>).",
+          starter: "",
+          solution: `\\addplot[domain=-1:1, green] {exp(x)};`,
+          checks: [
+            { re: /domain\s*=\s*-1\s*:\s*1/, label: "Usa domain=-1:1" },
+            { re: /green/, label: "Usa el color green" },
+            { re: /\{\s*exp\(x\)\s*\}/, label: "Grafica la expresión exp(x)" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 10,
+    title: "Gráficos 3D",
+    lessons: [
+      {
+        id: "10.1",
+        name: "Superficies",
+        theory: `Para graficar en tres dimensiones se usa <code>\\addplot3</code> (con el 3 al final) en vez de <code>\\addplot</code>, con una expresión que depende de <code>x</code> e <code>y</code>. Por defecto pgfplots dibuja la superficie como una malla de líneas; agregando la opción <code>surf</code> se dibuja rellena.`,
+        example: `\\begin{axis}\n\\addplot3[domain=-2:2, y domain=-2:2, surf] {x^2 + y^2};\n\\end{axis}`,
+        tip: "y domain funciona igual que domain, pero controla el rango del segundo eje (y); si no lo especificás, pgfplots reutiliza el mismo rango de domain para ambos ejes.",
+        exercise: {
+          prompt: "Graficá la superficie <code>x*y</code> con dominio -1:1 en ambos ejes (<code>domain</code> y <code>y domain</code>), usando la opción <code>surf</code>.",
+          starter: "",
+          solution: `\\addplot3[domain=-1:1, y domain=-1:1, surf] {x*y};`,
+          checks: [
+            { re: /\\addplot3/, label: "Usa \\addplot3" },
+            { re: /surf/, label: "Incluye la opción surf" },
+            { re: /domain\s*=\s*-1\s*:\s*1/, label: "Usa domain=-1:1" },
+            { re: /y domain\s*=\s*-1\s*:\s*1/, label: "Usa y domain=-1:1" },
+            { re: /\{\s*x\*y\s*\}/, label: "Grafica la expresión x*y" }
+          ]
+        }
+      },
+      {
+        id: "10.2",
+        name: "Curvas espaciales",
+        theory: `Una curva paramétrica en 3D también se dibuja con <code>\\addplot3</code>, pero definiendo las tres coordenadas <code>(x, y, z)</code> en función de un parámetro. Se declara con <code>variable=t</code> y se agrega <code>samples y=0</code> para indicarle a pgfplots que es una curva de un solo parámetro, no una superficie.`,
+        example: `\\addplot3[domain=0:6.28, samples=100, samples y=0, variable=t]\n  ({cos(deg(t))}, {sin(deg(t))}, {t});`,
+        tip: "Esta combinación —coseno, seno y el propio parámetro como altura— dibuja una hélice, la curva 3D más clásica para practicar.",
+        exercise: {
+          prompt: "Escribí una curva paramétrica con <code>variable=t</code> y dominio de 0 a 10.",
+          starter: "",
+          solution: `\\addplot3[domain=0:10, samples=100, samples y=0, variable=t]
+  ({cos(deg(t))}, {sin(deg(t))}, {t});`,
+          checks: [
+            { re: /variable\s*=\s*t/, label: "Usa variable=t" },
+            { re: /domain\s*=\s*0\s*:\s*10/, label: "Usa domain=0:10" },
+            { re: /\\addplot3/, label: "Usa \\addplot3" }
+          ]
+        }
+      },
+      {
+        id: "10.3",
+        name: "Ajustar la vista",
+        theory: `Por defecto pgfplots elige un ángulo de cámara automático. Para controlarlo manualmente se usa <code>view={azimut}{elevación}</code>, dos ángulos en grados dentro de las opciones del <code>axis</code>. Un mapa de color como <code>colormap/viridis</code> ayuda a distinguir alturas en una superficie de un vistazo.`,
+        example: `\\begin{axis}[view={45}{30}, colormap/viridis]\n\\addplot3[surf, domain=-2:2, y domain=-2:2] {x^2 - y^2};\n\\end{axis}`,
+        tip: "view={0}{90} pone la cámara mirando directamente desde arriba, útil para revisar curvas de nivel antes de elegir el ángulo final.",
+        exercise: {
+          prompt: "Configurá la vista del <code>axis</code> con azimut 60 y elevación 20.",
+          starter: "",
+          solution: `\\begin{axis}[view={60}{20}]
+\\addplot3[surf] {x^2-y^2};
+\\end{axis}`,
+          checks: [
+            { re: /view\s*=\s*\{\s*60\s*\}\{\s*20\s*\}/, label: "Usa view={60}{20}" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 11,
+    title: "GeoGebra y LaTeX",
+    lessons: [
+      {
+        id: "11.1",
+        name: "Exportar desde GeoGebra",
+        theory: `GeoGebra puede exportar cualquier construcción directamente a código PGF/TikZ desde el menú <strong>Archivo → Exportar → Gráfico a PGF/TikZ</strong> (o "Copiar a Portapapeles como PGF/TikZ" en versiones más nuevas). El resultado es texto LaTeX real, listo para pegar — no una imagen.`,
+        example: `% fragmento típico que exporta GeoGebra\n\\begin{tikzpicture}\n\\begin{axis}[axis lines=middle]\n\\addplot[domain=-5:5] {2*x + 1};\n\\end{axis}\n\\end{tikzpicture}`,
+        tip: "Exportar como código en vez de imagen tiene una ventaja enorme: el gráfico queda con la misma tipografía y nitidez vectorial que el resto del documento, sin pixelarse al hacer zoom.",
+        exercise: {
+          prompt: "Para que el código exportado por GeoGebra compile, escribí los dos paquetes necesarios en el preámbulo: <code>tikz</code> y <code>pgfplots</code>.",
+          starter: "",
+          solution: `\\usepackage{tikz}
+\\usepackage{pgfplots}`,
+          checks: [
+            { re: /\\usepackage\{tikz\}/, label: "Incluye \\usepackage{tikz}" },
+            { re: /\\usepackage\{pgfplots\}/, label: "Incluye \\usepackage{pgfplots}" }
+          ]
+        }
+      },
+      {
+        id: "11.2",
+        name: "Insertar el código exportado",
+        theory: `El código exportado se pega dentro de <code>\\begin{document}</code>, normalmente envuelto en un entorno <code>figure</code> para que reciba numeración y un epígrafe como cualquier otra imagen del documento.`,
+        example: `\\begin{figure}[h]\n\\centering\n\\begin{tikzpicture}\n\\begin{axis}\n\\addplot[domain=-5:5] {2*x+1};\n\\end{axis}\n\\end{tikzpicture}\n\\caption{Recta exportada desde GeoGebra}\n\\end{figure}`,
+        tip: "Tratar el gráfico exportado como una figura más (con \\caption y \\label) te permite referenciarlo desde el texto exactamente igual que a una imagen común.",
+        exercise: {
+          prompt: "Envolvé un <code>tikzpicture</code> dentro de un <code>figure</code>, con <code>\\centering</code> y el epígrafe <code>Gráfico desde GeoGebra</code>.",
+          starter: "",
+          solution: `\\begin{figure}[h]
+\\centering
+\\begin{tikzpicture}
+\\begin{axis}
+\\addplot {x};
+\\end{axis}
+\\end{tikzpicture}
+\\caption{Gráfico desde GeoGebra}
+\\end{figure}`,
+          checks: [
+            { re: /\\begin\{figure\}/, label: "Abre \\begin{figure}" },
+            { re: /\\centering/, label: "Incluye \\centering" },
+            { re: /\\begin\{tikzpicture\}/, label: "Contiene \\begin{tikzpicture}" },
+            { re: /\\caption\{\s*Gráfico desde GeoGebra\s*\}/, label: "Usa \\caption{Gráfico desde GeoGebra}" }
+          ]
+        }
+      },
+      {
+        id: "11.3",
+        name: "Ajustar el gráfico exportado",
+        theory: `El código que exporta GeoGebra suele traer los límites de los ejes fijos con <code>xmin</code>, <code>xmax</code>, <code>ymin</code>, <code>ymax</code>. Podés editarlos directamente en el .tex para recortar la vista, sin necesidad de volver a exportar desde GeoGebra.`,
+        example: `\\begin{axis}[xmin=-5, xmax=5, ymin=-2, ymax=8, axis lines=middle]\n\\addplot[domain=-5:5, thick] {2*x + 1};\n\\end{axis}`,
+        tip: "Editar el .tex a mano es más rápido que reexportar cada vez que querés ajustar un detalle menor del gráfico, como el rango visible.",
+        exercise: {
+          prompt: "Ajustá los límites del eje horizontal a <code>xmin=-10</code> y <code>xmax=10</code>.",
+          starter: "",
+          solution: `\\begin{axis}[xmin=-10, xmax=10]
+\\addplot {x};
+\\end{axis}`,
+          checks: [
+            { re: /xmin\s*=\s*-10/, label: "Usa xmin=-10" },
+            { re: /xmax\s*=\s*10/, label: "Usa xmax=10" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 12,
+    title: "Documentos completos",
+    lessons: [
+      {
+        id: "12.1",
+        name: "Un artículo científico",
+        theory: `Un artículo profesional agrega, antes de <code>\\begin{document}</code>: <code>\\title{...}</code>, <code>\\author{...}</code> y <code>\\date{...}</code>. Dentro del cuerpo, justo después de <code>\\maketitle</code> (que tipografía esos datos como portada), se agrega un resumen con el entorno <code>abstract</code>.`,
+        example: `\\documentclass{article}\n\\title{Mi investigación}\n\\author{Nombre Apellido}\n\\date{\\today}\n\\begin{document}\n\\maketitle\n\\begin{abstract}\nResumen breve del trabajo.\n\\end{abstract}\n\\section{Introducción}\n\\end{document}`,
+        tip: "\\date{\\today} inserta automáticamente la fecha de compilación — no hace falta escribirla a mano ni acordarse de actualizarla.",
+        exercise: {
+          prompt: "Declará el título <code>Mi Tesis</code>, el autor <code>Ada Lovelace</code>, y agregá <code>\\maketitle</code> en el cuerpo del documento.",
+          starter: "",
+          solution: `\\title{Mi Tesis}
+\\author{Ada Lovelace}
+\\begin{document}
+\\maketitle
+\\end{document}`,
+          checks: [
+            { re: /\\title\{\s*Mi Tesis\s*\}/, label: "Usa \\title{Mi Tesis}" },
+            { re: /\\author\{\s*Ada Lovelace\s*\}/, label: "Usa \\author{Ada Lovelace}" },
+            { re: /\\maketitle/, label: "Incluye \\maketitle" }
+          ]
+        }
+      },
+      {
+        id: "12.2",
+        name: "Un examen o guía de ejercicios",
+        theory: `La estructura típica de un examen combina <code>\\section</code> para cada tema, <code>enumerate</code> para numerar los ejercicios, y a veces <code>\\newpage</code> para forzar que una sección empiece en una página nueva — útil, por ejemplo, para separar el examen de la hoja de soluciones.`,
+        example: `\\section{Ejercicios de derivadas}\n\\begin{enumerate}\n\\item Derivar $f(x) = x^3$\n\\item Derivar $f(x) = \\sin(x)$\n\\end{enumerate}\n\\newpage\n\\section{Soluciones}`,
+        tip: "\\newpage es un salto de página incondicional; si en cambio querés que LaTeX decida el mejor lugar para cortar la página, simplemente no lo uses y dejá que fluya solo.",
+        exercise: {
+          prompt: "Escribí una <code>\\section{Ejercicios}</code> con una lista <code>enumerate</code> de al menos 2 <code>\\item</code>, y un <code>\\newpage</code> después de cerrarla.",
+          starter: "",
+          solution: `\\section{Ejercicios}
+\\begin{enumerate}
+\\item Uno
+\\item Dos
+\\end{enumerate}
+\\newpage`,
+          checks: [
+            { re: /\\section\{\s*Ejercicios\s*\}/, label: "Usa \\section{Ejercicios}" },
+            { re: /\\begin\{enumerate\}/, label: "Abre \\begin{enumerate}" },
+            { re: /\\item[\s\S]*\\item/, label: "Tiene al menos dos \\item" },
+            { re: /\\end\{enumerate\}[\s\S]*\\newpage/, label: "Incluye \\newpage después de cerrar la lista" }
+          ]
+        }
+      },
+      {
+        id: "12.3",
+        name: "Presentaciones con Beamer",
+        theory: `Beamer es la clase de documento para armar presentaciones: <code>\\documentclass{beamer}</code>. Cada diapositiva es un entorno <code>frame</code>, y <code>\\frametitle{...}</code> le pone el título a esa diapositiva puntual.`,
+        example: `\\documentclass{beamer}\n\\begin{document}\n\\begin{frame}\n\\frametitle{Introducción}\n\\begin{itemize}\n\\item Primer punto\n\\item Segundo punto\n\\end{itemize}\n\\end{frame}\n\\end{document}`,
+        tip: "A diferencia de article, en beamer cada \\begin{frame}...\\end{frame} es literalmente una diapositiva distinta al proyectar la presentación.",
+        exercise: {
+          prompt: "Creá un <code>frame</code> con <code>\\frametitle{Resultados}</code> y una lista <code>itemize</code> de al menos 2 elementos.",
+          starter: "",
+          solution: `\\begin{frame}
+\\frametitle{Resultados}
+\\begin{itemize}
+\\item Uno
+\\item Dos
+\\end{itemize}
+\\end{frame}`,
+          checks: [
+            { re: /\\begin\{frame\}/, label: "Abre \\begin{frame}" },
+            { re: /\\frametitle\{\s*Resultados\s*\}/, label: "Usa \\frametitle{Resultados}" },
+            { re: /\\begin\{itemize\}/, label: "Abre \\begin{itemize}" },
+            { re: /\\item[\s\S]*\\item/, label: "Tiene al menos dos \\item" }
+          ]
+        }
+      },
+      {
+        id: "12.4",
+        name: "Temas y bloques en Beamer",
+        theory: `<code>\\usetheme{nombre}</code> en el preámbulo cambia todo el estilo visual de la presentación de una sola vez (colores, tipografía, barra de navegación) — Madrid, Berlin y Warsaw son temas clásicos. Dentro de una diapositiva, el entorno <code>block</code> resalta contenido en una caja con título: <code>\\begin{block}{Título}...\\end{block}</code>.`,
+        example: `\\documentclass{beamer}\n\\usetheme{Madrid}\n\\begin{document}\n\\begin{frame}\n\\begin{block}{Definición}\nUn vector es una magnitud con dirección y sentido.\n\\end{block}\n\\end{frame}\n\\end{document}`,
+        tip: "Cambiar de tema es una decisión de una sola línea (\\usetheme{...}) que no te obliga a tocar el resto del contenido — probá varios antes de decidir cuál usar.",
+        exercise: {
+          prompt: "Configurá el tema <code>Berlin</code> y escribí un <code>block</code> titulado <code>Conclusión</code>.",
+          starter: "",
+          solution: `\\usetheme{Berlin}
+\\begin{block}{Conclusión}
+Texto final.
+\\end{block}`,
+          checks: [
+            { re: /\\usetheme\{\s*Berlin\s*\}/, label: "Usa \\usetheme{Berlin}" },
+            { re: /\\begin\{block\}\{\s*Conclusión\s*\}/, label: "Usa \\begin{block}{Conclusión}" }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 13,
+    title: "Nivel experto: tesis y publicaciones",
+    lessons: [
+      {
+        id: "13.1",
+        name: "Bibliografía con BibTeX",
+        theory: `BibTeX guarda cada referencia en un archivo aparte (extensión <code>.bib</code>) como entradas con un tipo — <code>@article</code>, <code>@book</code>, <code>@inproceedings</code> — y una clave única. En el documento, <code>\\cite{clave}</code> inserta la cita, y <code>\\bibliography{archivo}</code> (sin la extensión .bib) le indica a LaTeX qué archivo usar. <code>\\bibliographystyle{estilo}</code> elige el formato visual de la lista final.`,
+        example: `% archivo referencias.bib\n@article{knuth1984,\n  author = {Donald E. Knuth},\n  title  = {Literate Programming},\n  year   = {1984}\n}\n\n% en el documento\nComo demostró \\cite{knuth1984}, ...\n\\bibliographystyle{plain}\n\\bibliography{referencias}`,
+        tip: "Hay que compilar en un orden específico para que las citas aparezcan bien: LaTeX, después BibTeX, y LaTeX dos veces más. La mayoría de los editores modernos, como Overleaf, hacen esto automáticamente al apretar \"compilar\".",
+        exercise: {
+          prompt: "Citá la clave <code>einstein1905</code> y configurá el estilo bibliográfico como <code>plain</code>.",
+          starter: "",
+          solution: `\\cite{einstein1905}
+\\bibliographystyle{plain}
+\\bibliography{referencias}`,
+          checks: [
+            { re: /\\cite\{\s*einstein1905\s*\}/, label: "Usa \\cite{einstein1905}" },
+            { re: /\\bibliographystyle\{\s*plain\s*\}/, label: "Usa \\bibliographystyle{plain}" }
+          ]
+        }
+      },
+      {
+        id: "13.2",
+        name: "Normas APA e IEEE",
+        theory: `El estilo bibliográfico define el formato exacto de citas y referencias. <code>\\bibliographystyle{apalike}</code> imita el formato autor-año de APA; para IEEE se usa <code>\\bibliographystyle{ieeetr}</code>, que numera las referencias en el orden en que aparecen citadas. Para un control más fino y fiel a APA real, se recurre al paquete <code>natbib</code>.`,
+        example: `\\usepackage{natbib}\n...\n\\bibliographystyle{apalike}\n\\bibliography{referencias}\n% cita estilo APA: \\citep{knuth1984} -> (Knuth, 1984)`,
+        tip: "IEEE numera las citas [1], [2]... en el orden de aparición; APA usa apellido y año entre paréntesis. Elegí el estilo según lo que pida tu institución o revista, y no los mezcles dentro del mismo documento.",
+        exercise: {
+          prompt: "Cargá el paquete <code>natbib</code> y configurá el estilo bibliográfico como <code>ieeetr</code>.",
+          starter: "",
+          solution: `\\usepackage{natbib}
+\\bibliographystyle{ieeetr}`,
+          checks: [
+            { re: /\\usepackage\{\s*natbib\s*\}/, label: "Usa \\usepackage{natbib}" },
+            { re: /\\bibliographystyle\{\s*ieeetr\s*\}/, label: "Usa \\bibliographystyle{ieeetr}" }
+          ]
+        }
+      },
+      {
+        id: "13.3",
+        name: "Referencias cruzadas avanzadas",
+        theory: `Además de <code>\\ref</code>, el paquete <code>cleveref</code> agrega <code>\\cref{clave}</code>, que inserta automáticamente la palabra correspondiente ("Figura 3", "Ecuación 5") sin que tengas que escribirla vos. Conviene combinarlo con <code>hyperref</code>, que convierte todas las referencias en links clicables dentro del PDF.`,
+        example: `\\usepackage{hyperref}\n\\usepackage{cleveref}\n...\n\\begin{equation}\nE = mc^2\n\\label{eq:einstein}\n\\end{equation}\nComo se ve en \\cref{eq:einstein}, ...`,
+        tip: "El orden de estos dos paquetes específicos sí importa: cargá hyperref primero y cleveref justo después, o algunas referencias pueden no funcionar bien.",
+        exercise: {
+          prompt: "Cargá el paquete <code>cleveref</code>, etiquetá una ecuación como <code>eq:masa</code> y referenciala con <code>\\cref</code>.",
+          starter: "",
+          solution: `\\usepackage{cleveref}
+\\begin{equation}
+E=mc^2
+\\label{eq:masa}
+\\end{equation}
+Ver \\cref{eq:masa}.`,
+          checks: [
+            { re: /\\usepackage\{\s*cleveref\s*\}/, label: "Usa \\usepackage{cleveref}" },
+            { re: /\\label\{\s*eq:masa\s*\}/, label: "Usa \\label{eq:masa}" },
+            { re: /\\cref\{\s*eq:masa\s*\}/, label: "Usa \\cref{eq:masa}" }
+          ]
+        }
+      },
+      {
+        id: "13.4",
+        name: "Estructura de una tesis o libro",
+        theory: `Para documentos largos se usa <code>\\documentclass{report}</code> o <code>\\documentclass{book}</code> en vez de <code>article</code>: ambas agregan <code>\\chapter</code>, un nivel jerárquico por encima de <code>\\section</code>. La clase <code>book</code> además distingue tres partes: <code>\\frontmatter</code> (páginas preliminares, numeración romana), <code>\\mainmatter</code> (el cuerpo, numeración arábiga desde 1) y <code>\\backmatter</code> (apéndices y bibliografía final).`,
+        example: `\\documentclass{report}\n\\begin{document}\n\\tableofcontents\n\\chapter{Introducción}\nTexto del primer capítulo.\n\\chapter{Marco teórico}\n\\end{document}`,
+        tip: "report es la opción más común para una tesis de grado; book se reserva para publicaciones pensadas para imprimirse a doble cara, como un libro editorial real.",
+        exercise: {
+          prompt: "Declará <code>\\documentclass{report}</code> y agregá un <code>\\chapter{Marco teórico}</code>.",
+          starter: "",
+          solution: `\\documentclass{report}
+\\begin{document}
+\\chapter{Marco teórico}
+\\end{document}`,
+          checks: [
+            { re: /\\documentclass\{\s*report\s*\}/, label: "Usa \\documentclass{report}" },
+            { re: /\\chapter\{\s*Marco teórico\s*\}/, label: "Usa \\chapter{Marco teórico}" }
+          ]
+        }
+      },
+      {
+        id: "13.5",
+        name: "Anexos",
+        theory: `El comando <code>\\appendix</code> marca que, a partir de ese punto, los capítulos o secciones siguientes son anexos: cambia automáticamente la numeración de números a letras ("Apéndice A", "Apéndice B"...). Se coloca justo antes del primer <code>\\chapter</code> o <code>\\section</code> que querés que sea un anexo — típicamente después de las conclusiones.`,
+        example: `\\chapter{Conclusiones}\n...\n\\appendix\n\\chapter{Código fuente completo}\n\\chapter{Encuestas utilizadas}`,
+        tip: "\\appendix es un interruptor, no un entorno: no lleva \\end{appendix}. Todo lo que venga después queda marcado como anexo hasta el final del documento.",
+        exercise: {
+          prompt: "Escribí <code>\\appendix</code> seguido de un <code>\\chapter{Datos adicionales}</code>.",
+          starter: "",
+          solution: `\\appendix
+\\chapter{Datos adicionales}`,
+          checks: [
+            { re: /\\appendix[\s\S]*\\chapter\{\s*Datos adicionales\s*\}/, label: "\\appendix aparece antes de \\chapter{Datos adicionales}" }
+          ]
+        }
+      }
+    ]
+  }
+];
+
+const BADGES = [
+  { id:"first-step", icon:"🌱", name:"Primer paso", desc:"Completaste tu primera lección" },
+  { id:"documentist", icon:"📄", name:"Documentista", desc:"Completaste el nivel 2", levelIndex:1 },
+  { id:"stylist", icon:"✒️", name:"Estilista", desc:"Completaste el nivel 3", levelIndex:2 },
+  { id:"mathematician", icon:"∑", name:"Matemático", desc:"Completaste el nivel 4", levelIndex:3 },
+  { id:"algebrista", icon:"🧮", name:"Algebrista", desc:"Completaste el nivel 5", levelIndex:4 },
+  { id:"tabulador", icon:"▦", name:"Tabulador", desc:"Completaste el nivel 6", levelIndex:5 },
+  { id:"ilustrador", icon:"🖼️", name:"Ilustrador", desc:"Completaste el nivel 7", levelIndex:6 },
+  { id:"geometra", icon:"📐", name:"Geómetra", desc:"Completaste el nivel 8", levelIndex:7 },
+  { id:"graficador", icon:"📈", name:"Graficador", desc:"Completaste el nivel 9", levelIndex:8 },
+  { id:"explorador3d", icon:"🧊", name:"Explorador 3D", desc:"Completaste el nivel 10", levelIndex:9 },
+  { id:"geogebrista", icon:"🟢", name:"GeoGebrista", desc:"Completaste el nivel 11", levelIndex:10 },
+  { id:"redactor", icon:"🎓", name:"Redactor experto", desc:"Completaste el nivel 12", levelIndex:11 },
+  { id:"maestro", icon:"👑", name:"Maestro de LaTeX", desc:"Completaste el nivel experto", levelIndex:12 }
+];
+
+/* =========================================================
+   STATE (en memoria — sin localStorage, ver nota de artifacts)
+========================================================= */
+const state = {
+  xp: 0,
+  streak: 0,
+  completed: {},        // { "1.1": true, ... }
+  badges: {},            // { "first-step": true, ... }
+  currentLessonRef: null // {levelIdx, lessonIdx}
+};
+
+function levelIsUnlocked(levelIdx){
+  if(levelIdx === 0) return true;
+  const prev = LEVELS[levelIdx - 1];
+  return prev.lessons.every(l => state.completed[l.id]);
+}
+function levelProgress(levelIdx){
+  const lv = LEVELS[levelIdx];
+  const done = lv.lessons.filter(l => state.completed[l.id]).length;
+  return { done, total: lv.lessons.length };
+}
+function allLessonsFlat(){
+  const flat = [];
+  LEVELS.forEach((lv, li) => lv.lessons.forEach((ls, si) => flat.push({levelIdx:li, lessonIdx:si, lesson:ls, level:lv})));
+  return flat;
+}
+
+/* =========================================================
+   RENDER: top stats + badges
+========================================================= */
+function renderStats(){
+  document.getElementById('xp-count').textContent = state.xp;
+  document.getElementById('streak-count').textContent = state.streak;
+  const currentLevel = LEVELS.findIndex((_, i) => levelIsUnlocked(i) && levelProgress(i).done < levelProgress(i).total);
+  document.getElementById('level-count').textContent = currentLevel === -1 ? LEVELS.length : currentLevel + 1;
+
+  const row = document.getElementById('badge-row');
+  row.innerHTML = '';
+  BADGES.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'mini-badge' + (state.badges[b.id] ? ' earned' : '');
+    el.title = b.name + ' — ' + b.desc;
+    el.textContent = b.icon;
+    row.appendChild(el);
+  });
+}
+
+/* =========================================================
+   RENDER: path view
+========================================================= */
+function renderPath(){
+  const root = document.getElementById('path-root');
+  root.innerHTML = '';
+  LEVELS.forEach((lv, li) => {
+    const unlocked = levelIsUnlocked(li);
+    const prog = levelProgress(li);
+    const block = document.createElement('div');
+    block.className = 'level-block';
+
+    const header = document.createElement('div');
+    header.className = 'level-header';
+    header.innerHTML = `
+      <span class="level-index">Nivel ${li+1}</span>
+      <span class="level-title">${lv.title}</span>
+      <div class="level-progress-track"><div class="level-progress-fill" style="width:${(prog.done/prog.total*100)||0}%"></div></div>
+      <span class="lesson-meta">${prog.done}/${prog.total}</span>
+    `;
+    block.appendChild(header);
+
+    const row = document.createElement('div');
+    row.className = 'lesson-row';
+    lv.lessons.forEach((ls, si) => {
+      const done = !!state.completed[ls.id];
+      const node = document.createElement('button');
+      node.className = 'lesson-node' + (!unlocked ? ' locked' : '') + (done ? ' done' : '');
+      node.disabled = !unlocked;
+      node.innerHTML = `
+        <div class="lesson-icon">${done ? '✓' : ls.id}</div>
+        <div class="lesson-name">${ls.name}</div>
+        <div class="lesson-meta">${done ? 'Completada' : (unlocked ? 'Disponible' : 'Bloqueada')}</div>
+      `;
+      if(unlocked){
+        node.addEventListener('click', () => openLesson(li, si));
+      }
+      row.appendChild(node);
+    });
+    block.appendChild(row);
+    root.appendChild(block);
+  });
+}
+
+/* =========================================================
+   RENDER: lesson view
+========================================================= */
+function openLesson(levelIdx, lessonIdx){
+  state.currentLessonRef = { levelIdx, lessonIdx };
+  switchTab('lesson');
+  renderLesson();
+}
+
+function renderLesson(){
+  const { levelIdx, lessonIdx } = state.currentLessonRef;
+  const level = LEVELS[levelIdx];
+  const lesson = level.lessons[lessonIdx];
+
+  document.getElementById('lesson-eyebrow').textContent = `Nivel ${levelIdx+1} · ${level.title}`;
+  document.getElementById('lesson-title').textContent = lesson.name;
+
+  const body = document.getElementById('lesson-body');
+  body.innerHTML = `
+    <div class="section-block">
+      <div class="section-label">Teoría</div>
+      <div class="theory-text">${lesson.theory}</div>
+      ${lesson.tip ? `<div class="tip-box">💡 <div>${lesson.tip}</div></div>` : ''}
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Ejemplo</div>
+      <div class="example-grid">
+        <div class="code-block">${escapeHtml(lesson.example)}</div>
+        <div class="preview-box" id="lesson-example-preview"></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Ejercicio</div>
+      <div class="exercise-card">
+        <div class="exercise-prompt">${lesson.exercise.prompt}</div>
+        <div class="editor-grid">
+          <div class="editor-col">
+            <div class="editor-col-label">Tu código</div>
+            <textarea class="code-input" id="exercise-input" spellcheck="false" placeholder="Escribí tu código LaTeX acá...">${lesson.exercise.starter}</textarea>
+          </div>
+          <div class="editor-col">
+            <div class="editor-col-label">Vista previa</div>
+            <div class="preview-box preview-box-live" id="exercise-preview"></div>
+          </div>
+        </div>
+        <div class="exercise-actions">
+          <button class="btn btn-primary" id="check-btn">Comprobar</button>
+          <button class="btn btn-ghost" id="reveal-btn">Ver solución</button>
+          <span class="lesson-meta" id="exercise-status">${state.completed[lesson.id] ? '✓ Ya completada' : ''}</span>
+        </div>
+        <div id="exercise-feedback"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('lesson-example-preview').innerHTML = renderLatexPreview(lesson.example);
+
+  const exInput = document.getElementById('exercise-input');
+  const exPreview = document.getElementById('exercise-preview');
+  const updateExercisePreview = () => { exPreview.innerHTML = renderLatexPreview(exInput.value); };
+  updateExercisePreview();
+  exInput.addEventListener('input', updateExercisePreview);
+
+  document.getElementById('check-btn').addEventListener('click', () => checkExercise(lesson));
+  document.getElementById('reveal-btn').addEventListener('click', () => { revealSolution(lesson); updateExercisePreview(); });
+
+  const prevBtn = document.getElementById('prev-lesson-btn');
+  const nextBtn = document.getElementById('next-lesson-btn');
+  const flat = allLessonsFlat();
+  const curIdx = flat.findIndex(f => f.levelIdx === levelIdx && f.lessonIdx === lessonIdx);
+  prevBtn.disabled = curIdx <= 0;
+  prevBtn.onclick = () => { if(curIdx > 0){ const t = flat[curIdx-1]; openLesson(t.levelIdx, t.lessonIdx); } };
+  nextBtn.textContent = (curIdx < flat.length - 1) ? 'Siguiente lección →' : 'Volver a la ruta';
+  nextBtn.onclick = () => {
+    if(curIdx < flat.length - 1){
+      const t = flat[curIdx+1];
+      if(levelIsUnlocked(t.levelIdx)){ openLesson(t.levelIdx, t.lessonIdx); }
+      else { switchTab('path'); renderPath(); }
+    } else {
+      switchTab('path'); renderPath();
+    }
+  };
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* =========================================================
+   MINI RENDERIZADOR: LaTeX -> HTML (vista previa "tipo Overleaf")
+   Interpreta un subconjunto amplio de comandos para dar una vista
+   previa útil en el navegador. Lo que necesita un motor LaTeX real
+   (TikZ, PGFPlots, imágenes) se muestra como un recuadro aclaratorio.
+========================================================= */
+function renderLatexPreview(raw){
+  if(!raw || !raw.trim()){
+    return '<div class="tex-preview-empty">La vista previa va a aparecer acá a medida que escribís código LaTeX.</div>';
+  }
+
+  let src = raw;
+  const store = [];
+  const protect = (html) => {
+    const marker = '\u0001P' + store.length + '\u0001';
+    store.push(html);
+    return marker;
+  };
+
+  // 1) Proteger caracteres especiales escapados
+  src = src.replace(/\\%/g, () => protect('%'));
+  src = src.replace(/\\\$/g, () => protect('$'));
+  src = src.replace(/\\&/g, () => protect('&amp;'));
+  src = src.replace(/\\#/g, () => protect('#'));
+  src = src.replace(/\\_/g, () => protect('_'));
+  src = src.replace(/\\\{/g, () => protect('{'));
+  src = src.replace(/\\\}/g, () => protect('}'));
+
+  // 2) Quitar comentarios reales (% sin escapar, hasta fin de línea)
+  src = src.replace(/%.*$/gm, '');
+
+  // 3) Matemática: $$...$$ (display) y $...$ (inline), renderizada con KaTeX
+  src = src.replace(/\$\$([\s\S]+?)\$\$/g, (m, expr) => {
+    let html;
+    try { html = katex.renderToString(expr, { throwOnError:false, displayMode:true }); }
+    catch(e){ html = '<span class="tex-error">' + escapeHtml(m) + '</span>'; }
+    return protect(html);
+  });
+  src = src.replace(/\\\[([\s\S]+?)\\\]/g, (m, expr) => {
+    let html;
+    try { html = katex.renderToString(expr, { throwOnError:false, displayMode:true }); }
+    catch(e){ html = '<span class="tex-error">' + escapeHtml(m) + '</span>'; }
+    return protect(html);
+  });
+  src = src.replace(/\$([^$]+?)\$/g, (m, expr) => {
+    let html;
+    try { html = katex.renderToString(expr, { throwOnError:false, displayMode:false }); }
+    catch(e){ html = '<span class="tex-error">' + escapeHtml(m) + '</span>'; }
+    return protect(html);
+  });
+
+  // 4) Comandos de preámbulo / metadatos: capturar título y autor, luego quitar
+  let titleVal = null, authorVal = null;
+  src = src.replace(/\\title\{([^{}]*)\}/, (m, t) => { titleVal = t; return ''; });
+  src = src.replace(/\\author\{([^{}]*)\}/, (m, a) => { authorVal = a; return ''; });
+  src = src.replace(/\\date\{[^{}]*\}/g, '');
+  src = src.replace(/\\documentclass(\[[^\]]*\])?\{[^{}]*\}/g, '');
+  src = src.replace(/\\usepackage(\[[^\]]*\])?\{[^{}]*\}/g, '');
+  src = src.replace(/\\pgfplotsset\{[^{}]*\}/g, '');
+  src = src.replace(/\\bibliographystyle\{[^{}]*\}/g, '');
+  src = src.replace(/\\bibliography\{[^{}]*\}/g, '');
+  src = src.replace(/\\usetheme\{[^{}]*\}/g, '');
+  src = src.replace(/\\label\{[^{}]*\}/g, '');
+  src = src.replace(/\\begin\{document\}/g, '');
+  src = src.replace(/\\end\{document\}/g, '');
+  src = src.replace(/\\tableofcontents/g, () => protect('<div class="tex-toc-placeholder">📑 Tabla de contenidos (se genera al compilar)</div>'));
+
+  // 5) Entornos que necesitan un motor LaTeX real: TikZ y PGFPlots
+  src = src.replace(/\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g, () =>
+    protect('<div class="tex-render-placeholder">📐 Este dibujo (TikZ / PGFPlots) se renderiza al compilar con un motor LaTeX completo — no se puede previsualizar en el navegador. La sintaxis sí se corrige igual.</div>')
+  );
+  src = src.replace(/\\begin\{axis\}[\s\S]*?\\end\{axis\}/g, () =>
+    protect('<div class="tex-render-placeholder">📈 Este gráfico (PGFPlots) se renderiza al compilar con un motor LaTeX completo — no se puede previsualizar en el navegador. La sintaxis sí se corrige igual.</div>')
+  );
+
+  // 6) Figuras / subfiguras / imágenes -> recuadro con el epígrafe si existe
+  src = src.replace(/\\begin\{figure\}[\s\S]*?\\end\{figure\}/g, (m) => {
+    const capMatch = m.match(/\\caption\{([^{}]*)\}/);
+    const cap = capMatch ? escapeHtml(capMatch[1]) : null;
+    const subfigCount = (m.match(/\\begin\{subfigure\}/g) || []).length;
+    const label = subfigCount > 1 ? `🖼️ ${subfigCount} subfiguras` : '🖼️ Figura';
+    return protect(`<div class="tex-figure-placeholder">${label} (requiere imagen real / compilación)${cap ? `<div class="tex-caption">${cap}</div>` : ''}</div>`);
+  });
+  src = src.replace(/\\includegraphics(\[[^\]]*\])?\{([^{}]*)\}/g, (m, opt, file) =>
+    protect(`<div class="tex-figure-placeholder">🖼️ Imagen: ${escapeHtml(file)}</div>`)
+  );
+
+  // 7) Tablas
+  src = src.replace(/\\begin\{tabular\}\{[^}]*\}([\s\S]*?)\\end\{tabular\}/g, (m, inner) => {
+    let content = inner.replace(/\\hline/g, '');
+    const rows = content.split(/\\\\/).map(r => r.trim()).filter(r => r.length);
+    let rowsHtml = rows.map(row => {
+      const cells = row.split('&').map(c => c.trim());
+      const cellsHtml = cells.map(cellRaw => {
+        let mc = cellRaw.match(/^\\multicolumn\{(\d+)\}\{[^}]*\}\{(.*)\}$/);
+        if(mc) return `<td colspan="${mc[1]}">${escapeHtml(mc[2].trim())}</td>`;
+        let mr = cellRaw.match(/^\\multirow\{(\d+)\}\{[^}]*\}\{(.*)\}$/);
+        if(mr) return `<td rowspan="${mr[1]}">${escapeHtml(mr[2].trim())}</td>`;
+        return `<td>${escapeHtml(cellRaw)}</td>`;
+      }).join('');
+      return `<tr>${cellsHtml}</tr>`;
+    }).join('');
+    return protect(`<table class="tex-table">${rowsHtml}</table>`);
+  });
+
+  // 8) Listas (itemize / enumerate)
+  function renderList(m, inner, tag){
+    const items = inner.split(/\\item/).map(s => s.trim()).filter(Boolean);
+    const itemsHtml = items.map(it => `<li>${escapeHtml(it)}</li>`).join('');
+    return protect(`<${tag} class="tex-list">${itemsHtml}</${tag}>`);
+  }
+  src = src.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g, (m, inner) => renderList(m, inner, 'ul'));
+  src = src.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g, (m, inner) => renderList(m, inner, 'ol'));
+
+  // 9) Resumen (abstract)
+  src = src.replace(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/g, (m, inner) =>
+    protect(`<div class="tex-abstract"><strong>Resumen.</strong> ${escapeHtml(inner.trim())}</div>`)
+  );
+
+  // 10) Bloques de Beamer (\begin{block}{Título}...\end{block})
+  src = src.replace(/\\begin\{block\}\{([^{}]*)\}([\s\S]*?)\\end\{block\}/g, (m, title, inner) =>
+    protect(`<div class="tex-block"><div class="tex-block-title">${escapeHtml(title)}</div><div>${escapeHtml(inner.trim())}</div></div>`)
+  );
+
+  // 11) Diapositivas de Beamer (\begin{frame}...\end{frame})
+  src = src.replace(/\\begin\{frame\}([\s\S]*?)\\end\{frame\}/g, (m, inner) => {
+    const titleMatch = inner.match(/\\frametitle\{([^{}]*)\}/);
+    const title = titleMatch ? escapeHtml(titleMatch[1]) : null;
+    let body = inner.replace(/\\frametitle\{[^{}]*\}/, '');
+    // Procesar listas dentro del frame también
+    body = body.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g, (mm, in2) => renderList(mm, in2, 'ul'));
+    body = body.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g, (mm, in2) => renderList(mm, in2, 'ol'));
+    // Restaurar marcadores ya generados dentro del cuerpo del frame antes de envolver
+    body = body.replace(/\u0001P(\d+)\u0001/g, (mm, idx) => store[Number(idx)]);
+    return protect(`<div class="tex-slide">${title ? `<div class="tex-slide-title">${title}</div>` : ''}<div class="tex-slide-body">${body.trim()}</div></div>`);
+  });
+
+  // 12) Apéndice y salto de página
+  src = src.replace(/\\appendix/g, () => protect('<div class="tex-appendix-marker">— A partir de acá: Anexos —</div>'));
+  src = src.replace(/\\newpage/g, () => protect('<div class="tex-pagebreak">· · · salto de página · · ·</div>'));
+
+  // 13) Título, autor y \maketitle
+  src = src.replace(/\\maketitle/g, () => {
+    if(!titleVal && !authorVal) return '';
+    return protect(`<div class="tex-title-block">${titleVal ? `<div class="tex-doc-title">${escapeHtml(titleVal)}</div>` : ''}${authorVal ? `<div class="tex-doc-author">${escapeHtml(authorVal)}</div>` : ''}</div>`);
+  });
+
+  // 14) Encabezados
+  src = src.replace(/\\chapter\{([^{}]*)\}/g, (m, t) => protect(`<h1 class="tex-chapter">${escapeHtml(t)}</h1>`));
+  src = src.replace(/\\section\{([^{}]*)\}/g, (m, t) => protect(`<h2 class="tex-section">${escapeHtml(t)}</h2>`));
+  src = src.replace(/\\subsection\{([^{}]*)\}/g, (m, t) => protect(`<h3 class="tex-subsection">${escapeHtml(t)}</h3>`));
+  src = src.replace(/\\subsubsection\{([^{}]*)\}/g, (m, t) => protect(`<h4 class="tex-subsubsection">${escapeHtml(t)}</h4>`));
+
+  // 15) Énfasis de texto
+  src = src.replace(/\\textbf\{([^{}]*)\}/g, (m, t) => protect(`<strong>${escapeHtml(t)}</strong>`));
+  src = src.replace(/\\textit\{([^{}]*)\}/g, (m, t) => protect(`<em>${escapeHtml(t)}</em>`));
+  src = src.replace(/\\underline\{([^{}]*)\}/g, (m, t) => protect(`<u>${escapeHtml(t)}</u>`));
+
+  // 16) Referencias, citas y bibliografía
+  src = src.replace(/\\c?ref\{([^{}]*)\}/g, (m, k) => protect(`<span class="tex-ref-badge">🔗 ${escapeHtml(k)}</span>`));
+  src = src.replace(/\\cite\{([^{}]*)\}/g, (m, k) => protect(`<span class="tex-cite-badge">[${escapeHtml(k)}]</span>`));
+
+  // 17) Saltos de línea forzados
+  src = src.replace(/\\\\/g, () => protect('<br>'));
+
+  // 18) Párrafos: líneas en blanco -> separación; saltos simples -> espacio
+  src = src.replace(/\n{2,}/g, () => protect('<div class="tex-parbreak"></div>'));
+  src = src.replace(/\n/g, ' ');
+
+  // 19) Escapar cualquier texto plano restante (comandos no reconocidos quedan como texto literal)
+  src = escapeHtml(src);
+
+  // 20) Restaurar los bloques protegidos
+  src = src.replace(/\u0001P(\d+)\u0001/g, (m, idx) => store[Number(idx)]);
+
+  return `<div class="tex-rendered">${src}</div>`;
+}
+
+function normalize(s){
+  return s.trim();
+}
+
+function checkExercise(lesson){
+  const input = document.getElementById('exercise-input').value;
+  const feedbackEl = document.getElementById('exercise-feedback');
+  const results = lesson.exercise.checks.map(c => ({ label: c.label, pass: c.re.test(input) }));
+  const allPass = results.every(r => r.pass);
+
+  if(allPass){
+    feedbackEl.innerHTML = `<div class="feedback ok">✓ ¡Correcto! Tu código cumple con todo lo pedido.</div>`;
+    if(!state.completed[lesson.id]){
+      completeLesson(lesson);
+    }
+  } else {
+    const missing = results.filter(r => !r.pass);
+    feedbackEl.innerHTML = `
+      <div class="feedback bad">
+        Todavía falta algo. Revisá:
+        <ul>${missing.map(m => `<li>${m.label}</li>`).join('')}</ul>
+      </div>`;
+  }
+}
+
+function revealSolution(lesson){
+  document.getElementById('exercise-input').value = lesson.exercise.solution;
+  document.getElementById('exercise-feedback').innerHTML = `<div class="feedback ok">Esta es una solución válida — modificala y volvé a comprobar cuando quieras.</div>`;
+}
+
+function completeLesson(lesson){
+  state.completed[lesson.id] = true;
+  state.xp += 10;
+  state.streak += 1;
+  document.getElementById('exercise-status').textContent = '✓ Recién completada · +10 XP';
+
+  // badges
+  let newBadge = null;
+  if(!state.badges['first-step']){ state.badges['first-step'] = true; newBadge = BADGES[0]; }
+  LEVELS.forEach((lv, li) => {
+    const prog = levelProgress(li);
+    if(prog.done === prog.total){
+      const badge = BADGES.find(b => b.levelIndex === li);
+      if(badge && !state.badges[badge.id]){
+        state.badges[badge.id] = true;
+        newBadge = badge;
+      }
+    }
+  });
+
+  renderStats();
+  showToast(newBadge ? `${newBadge.icon} Insignia desbloqueada: ${newBadge.name}` : '+10 XP — ¡lección completada!');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* =========================================================
+   TAB SWITCHING
+========================================================= */
+function switchTab(tab){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  if(tab === 'path'){
+    document.getElementById('view-path').classList.add('active');
+    document.querySelector('.nav-tab[data-tab="path"]').classList.add('active');
+    renderPath();
+  } else if(tab === 'playground'){
+    document.getElementById('view-playground').classList.add('active');
+    document.querySelector('.nav-tab[data-tab="playground"]').classList.add('active');
+  } else if(tab === 'lesson'){
+    document.getElementById('view-lesson').classList.add('active');
+  }
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+document.getElementById('back-to-path').addEventListener('click', () => switchTab('path'));
+
+/* =========================================================
+   PLAYGROUND
+========================================================= */
+const pgInput = document.getElementById('pg-input');
+const pgPreview = document.getElementById('pg-preview');
+pgInput.value = `\\section{Vectores en el plano}\nUn vector como \\textbf{v} se escribe $\\vec{v} = (v_1, v_2)$.\n\n$$\\vec{v} = \\begin{pmatrix} 3 \\\\ 4 \\end{pmatrix}, \\qquad |\\vec{v}| = \\sqrt{3^2 + 4^2} = 5$$\n\n\\begin{itemize}\n\\item Suma: $\\vec{u} + \\vec{v}$\n\\item Producto escalar: $\\vec{u} \\cdot \\vec{v}$\n\\end{itemize}`;
+
+function renderPlayground(){
+  pgPreview.innerHTML = renderLatexPreview(pgInput.value);
+}
+pgInput.addEventListener('input', renderPlayground);
+
+/* =========================================================
+   INIT
+========================================================= */
+renderStats();
+renderPath();
+renderPlayground();
+</script>
+</body>
+</html>
