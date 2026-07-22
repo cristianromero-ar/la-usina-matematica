@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Laboratorio de Superficies Cuádricas</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+  :root{
+    --bg:#0B1220; --panel:#121A2B; --panelAlt:#0F1626; --border:#233047;
+    --text:#E7ECF6; --textDim:#8A97AF; --accent:#4FD1C5; --accentDim:#245B56;
+    --warn:#F5B942; --danger:#F3706B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:ui-sans-serif,-apple-system,system-ui,Segoe UI,Roboto,sans-serif;overflow:hidden;}
+  #app{display:flex;flex-direction:column;height:100%;}
+  header{border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;}
+  header .t1{font-size:14px;font-weight:600;letter-spacing:.02em;}
+  header .t2{font-size:12px;color:var(--textDim);margin-top:2px;}
+  .main{flex:1;display:flex;min-height:0;}
+  @media (max-width:900px){ .main{flex-direction:column;overflow-y:auto;} }
+  .scene-wrap{position:relative;flex:1;min-height:320px;}
+  @media (max-width:900px){ .scene-wrap{height:46vh;min-height:280px;flex:none;} }
+  #mount{position:absolute;inset:0;}
+  #mount canvas{display:block;width:100%;height:100%;touch-action:none;}
+  .scene-controls{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:6px;z-index:5;}
+  .scene-hint{position:absolute;bottom:10px;left:10px;font-size:11px;color:var(--textDim);
+    background:#0F1626cc;padding:4px 8px;border-radius:6px;z-index:5;}
+  .eq-badge{position:absolute;top:10px;right:10px;background:#0F1626ee;border:1px solid var(--border);
+    border-radius:10px;padding:8px 12px;z-index:5;max-width:60%;overflow-x:auto;}
+  .eq-badge .katex{font-size:1.05em;color:var(--text);}
+  .panel{width:100%;flex-shrink:0;display:flex;flex-direction:column;min-height:0;
+    border-top:1px solid var(--border);background:var(--panel);}
+  @media (min-width:901px){ .panel{width:400px;border-top:none;border-left:1px solid var(--border);} }
+  .tabs{display:flex;gap:14px;padding:0 16px;border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;}
+  .tab-btn{background:none;border:none;color:var(--textDim);padding:10px 2px;font-size:13px;cursor:pointer;
+    border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit;}
+  .tab-btn.active{color:var(--text);border-bottom-color:var(--accent);}
+  .panel-body{flex:1;overflow-y:auto;padding:16px;font-size:13.5px;line-height:1.5;}
+  @media (max-width:900px){ .panel-body{flex:none;} }
+  .btn{background:var(--panelAlt);border:1px solid var(--border);color:var(--text);border-radius:10px;
+    padding:8px 12px;font-size:13px;cursor:pointer;transition:border-color .15s,color .15s;font-family:inherit;}
+  .btn:hover{border-color:var(--accent);}
+  .btn.active{border-color:var(--accent);color:var(--accent);background:#245B5633;}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .row{display:flex;flex-wrap:wrap;gap:8px;}
+  .col{display:flex;flex-direction:column;gap:8px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .dim{color:var(--textDim);}
+  .card{background:var(--panelAlt);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+  .ok{color:var(--accent);} .bad{color:var(--danger);} .warn-txt{color:var(--warn);}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  summary{cursor:pointer;color:var(--textDim);}
+  ::-webkit-scrollbar{width:8px;height:8px;} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+  .katex-eq{overflow-x:auto;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="t1">Laboratorio de Superficies Cuádricas</div>
+    <div class="t2">Primero pensás. Después respondés. Recién ahí lo ves proyectado sobre la superficie.</div>
+  </header>
+  <div class="main">
+    <div class="scene-wrap">
+      <div id="mount"></div>
+      <div class="scene-controls">
+        <button class="btn active" id="btnLbl" data-act="toggleLbl">Etiquetas de ejes</button>
+        <button class="btn active" id="btnGrid" data-act="toggleGrid">Cuadrícula</button>
+        <button class="btn" data-act="resetView">Reset vista</button>
+      </div>
+      <div class="scene-hint">Arrastrá para rotar · rueda / pellizco para zoom</div>
+      <div class="eq-badge"><div id="eqBadge" class="katex-eq"></div></div>
+    </div>
+    <div class="panel">
+      <div class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="identificar" data-act="switchTab" data-val="identificar">Identificar</button>
+        <button class="tab-btn" data-tab="trazas" data-act="switchTab" data-val="trazas">Trazas</button>
+        <button class="tab-btn" data-tab="intersecciones" data-act="switchTab" data-val="intersecciones">Intersecciones</button>
+        <button class="tab-btn" data-tab="libre" data-act="switchTab" data-val="libre">Exploración libre</button>
+        <button class="tab-btn" data-tab="ejercicios" data-act="switchTab" data-val="ejercicios">Ejercicios</button>
+      </div>
+      <div class="panel-body" id="panelBody"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   MATEMÁTICA DE LAS SEIS CUÁDRICAS (idéntica al artifact React)
+============================================================ */
+const EPS = 0.05;
+const close = (p, q) => Math.abs(p - q) <= EPS * Math.max(p, q, 1);
+
+function toScene(x, y, z) { return [y, z, x]; } // pantalla: z arriba, y a la derecha, x hacia el frente
+
+function buildGrid(nu, nv, fn) {
+  const positions = [];
+  for (let i = 0; i <= nu; i++) {
+    const un = i / nu;
+    for (let j = 0; j <= nv; j++) {
+      const vn = j / nv;
+      const [x, y, z] = fn(un, vn);
+      const [sx, sy, sz] = toScene(x, y, z);
+      positions.push(sx, sy, sz);
+    }
+  }
+  const indices = [];
+  const row = nv + 1;
+  for (let i = 0; i < nu; i++) {
+    for (let j = 0; j < nv; j++) {
+      const a0 = i * row + j, b0 = a0 + row;
+      indices.push(a0, b0, a0 + 1, a0 + 1, b0, b0 + 1);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+function sampleLine(fn, t0, t1, n) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) pts.push(fn(t0 + (t1 - t0) * (i / n)));
+  return pts;
+}
+function mapUV(u, v, plane) {
+  if (plane === 'xy') return [u, v, 0];
+  if (plane === 'xz') return [u, 0, v];
+  return [0, u, v];
+}
+function ell(r1, r2, plane) {
+  const type = close(r1, r2) ? 'Circunferencia' : 'Elipse';
+  return { type, branches: [sampleLine((t) => mapUV(r1 * Math.cos(t), r2 * Math.sin(t), plane), 0, 2 * Math.PI, 56)] };
+}
+function hyp(ru, rv, plane) {
+  const br = (sg) => sampleLine((s) => mapUV(sg * ru * Math.cosh(s), rv * Math.sinh(s), plane), -1.0, 1.0, 28);
+  return { type: 'Hipérbola', branches: [br(1), br(-1)] };
+}
+function hypZ(ru, rv, plane) {
+  const br = (sg) => sampleLine((s) => mapUV(ru * Math.sinh(s), sg * rv * Math.cosh(s), plane), -1.1, 1.1, 28);
+  return { type: 'Hipérbola', branches: [br(1), br(-1)] };
+}
+function parab(k, plane, range, down) {
+  const pts = sampleLine((u) => { const v = (u * u) / (k * k); return mapUV(u, down ? -v : v, plane); }, -range, range, 36);
+  return { type: 'Parábola', branches: [pts] };
+}
+function lines(slope, plane, range, uIndep) {
+  let b1, b2;
+  if (uIndep) {
+    b1 = [mapUV(-range, -slope * range, plane), mapUV(range, slope * range, plane)];
+    b2 = [mapUV(-range, slope * range, plane), mapUV(range, -slope * range, plane)];
+  } else {
+    b1 = [mapUV(-slope * range, -range, plane), mapUV(slope * range, range, plane)];
+    b2 = [mapUV(slope * range, -range, plane), mapUV(-slope * range, range, plane)];
+  }
+  return { type: 'Dos rectas', branches: [b1, b2] };
+}
+
+const SURF = {
+  elipsoide: {
+    label: 'Elipsoide',
+    tex: (a,b,c,z) => `${cx('x',`\\dfrac{x^2}{${fmt(a)}^2}`,z)} + ${cx('y',`\\dfrac{y^2}{${fmt(b)}^2}`,z)} + ${cx('z',`\\dfrac{z^2}{${fmt(c)}^2}`,z)} = 1`,
+    mesh: (a,b,c) => [buildGrid(24,32,(un,vn)=>{const phi=un*Math.PI,th=vn*2*Math.PI;return [a*Math.sin(phi)*Math.cos(th), b*Math.sin(phi)*Math.sin(th), c*Math.cos(phi)];})],
+    trace: (plane,a,b,c) => plane==='xy'?ell(a,b,'xy') : plane==='xz'?ell(a,c,'xz') : ell(b,c,'yz'),
+    intercepts: (a,b,c) => ({ x:{type:'Dos puntos',pts:[[a,0,0],[-a,0,0]]}, y:{type:'Dos puntos',pts:[[0,b,0],[0,-b,0]]}, z:{type:'Dos puntos',pts:[[0,0,c],[0,0,-c]]} }),
+    note: { xy:'Con z=0 quedan solo términos positivos en x e y.', xz:'Con y=0 quedan solo términos positivos en x y z.', yz:'Con x=0 quedan solo términos positivos en y y z.' },
+  },
+  h1hoja: {
+    label: 'Hiperboloide de una hoja',
+    tex: (a,b,c,z) => `${cx('x',`\\dfrac{x^2}{${fmt(a)}^2}`,z)} + ${cx('y',`\\dfrac{y^2}{${fmt(b)}^2}`,z)} - ${cx('z',`\\dfrac{z^2}{${fmt(c)}^2}`,z)} = 1`,
+    mesh: (a,b,c) => [buildGrid(24,32,(un,vn)=>{const t=(un*2-1)*1.25,th=vn*2*Math.PI;return [a*Math.cosh(t)*Math.cos(th), b*Math.cosh(t)*Math.sin(th), c*Math.sinh(t)];})],
+    trace: (plane,a,b,c) => plane==='xy'?ell(a,b,'xy') : plane==='xz'?hyp(a,c,'xz') : hyp(b,c,'yz'),
+    intercepts: (a,b,c) => ({ x:{type:'Dos puntos',pts:[[a,0,0],[-a,0,0]]}, y:{type:'Dos puntos',pts:[[0,b,0],[0,-b,0]]}, z:{type:'No existe',pts:[]} }),
+    note: { xy:'Con z=0 los dos términos positivos dan la elipse "cintura" de la superficie.', xz:'Con y=0 queda una hipérbola.', yz:'Con x=0 queda una hipérbola.' },
+  },
+  h2hojas: {
+    label: 'Hiperboloide de dos hojas',
+    tex: (a,b,c,z) => `${cx('z',`\\dfrac{z^2}{${fmt(c)}^2}`,z)} - ${cx('x',`\\dfrac{x^2}{${fmt(a)}^2}`,z)} - ${cx('y',`\\dfrac{y^2}{${fmt(b)}^2}`,z)} = 1`,
+    mesh: (a,b,c) => { const nappe=(sign)=>buildGrid(16,32,(un,vn)=>{const t=un*1.3,th=vn*2*Math.PI;return [a*Math.sinh(t)*Math.cos(th), b*Math.sinh(t)*Math.sin(th), sign*c*Math.cosh(t)];}); return [nappe(1),nappe(-1)]; },
+    trace: (plane,a,b,c) => plane==='xy'?{type:'Vacío',branches:[]} : plane==='xz'?hypZ(a,c,'xz') : hypZ(b,c,'yz'),
+    intercepts: (a,b,c) => ({ x:{type:'No existe',pts:[]}, y:{type:'No existe',pts:[]}, z:{type:'Dos puntos',pts:[[0,0,c],[0,0,-c]]} }),
+    note: { xy:'Con z=0 queda una suma de negativos igual a 1: imposible para reales.', xz:'Con y=0 queda una hipérbola con vértices en z=±c.', yz:'Con x=0 queda una hipérbola.' },
+  },
+  cono: {
+    label: 'Cono elíptico',
+    tex: (a,b,c,z) => `${cx('x',`\\dfrac{x^2}{${fmt(a)}^2}`,z)} + ${cx('y',`\\dfrac{y^2}{${fmt(b)}^2}`,z)} - ${cx('z',`\\dfrac{z^2}{${fmt(c)}^2}`,z)} = 0`,
+    mesh: (a,b,c) => [buildGrid(24,32,(un,vn)=>{const t=(un*2-1)*1.6,th=vn*2*Math.PI;return [a*t*Math.cos(th), b*t*Math.sin(th), c*t];})],
+    trace: (plane,a,b,c) => plane==='xy'?{type:'Punto',point:[0,0,0]} : plane==='xz'?lines(a/c,'xz',1.7,false) : lines(b/c,'yz',1.7,false),
+    intercepts: () => ({ x:{type:'Un punto',pts:[[0,0,0]]}, y:{type:'Un punto',pts:[[0,0,0]]}, z:{type:'Un punto',pts:[[0,0,0]]} }),
+    note: { xy:'Con z=0 queda x²/a² + y²/b² = 0: solo el vértice.', xz:'Con y=0 factoriza en dos rectas por el origen.', yz:'Con x=0 factoriza en dos rectas por el origen.' },
+  },
+  parelip: {
+    label: 'Paraboloide elíptico',
+    tex: (a,b,c,z) => `${cx('z','z',z)} = ${cx('x',`\\dfrac{x^2}{${fmt(a)}^2}`,z)} + ${cx('y',`\\dfrac{y^2}{${fmt(b)}^2}`,z)}`,
+    mesh: (a,b) => [buildGrid(20,32,(un,vn)=>{const h=un*2.3,th=vn*2*Math.PI;return [a*Math.sqrt(h)*Math.cos(th), b*Math.sqrt(h)*Math.sin(th), h];})],
+    trace: (plane,a,b) => plane==='xy'?{type:'Punto',point:[0,0,0]} : plane==='xz'?parab(a,'xz',1.7,false) : parab(b,'yz',1.7,false),
+    intercepts: () => ({ x:{type:'Un punto',pts:[[0,0,0]]}, y:{type:'Un punto',pts:[[0,0,0]]}, z:{type:'Un punto',pts:[[0,0,0]]} }),
+    note: { xy:'Con z=0 queda x²/a² + y²/b² = 0: solo el vértice, en el origen.', xz:'Con y=0 queda z = x²/a²: una parábola.', yz:'Con x=0 queda z = y²/b²: otra parábola.' },
+  },
+  parhip: {
+    label: 'Paraboloide hiperbólico',
+    tex: (a,b,c,z) => `${cx('z','z',z)} = ${cx('x',`\\dfrac{x^2}{${fmt(a)}^2}`,z)} - ${cx('y',`\\dfrac{y^2}{${fmt(b)}^2}`,z)}`,
+    mesh: (a,b) => [buildGrid(24,24,(un,vn)=>{const x=(un*2-1)*1.7,y=(vn*2-1)*1.7;return [x,y,(x*x)/(a*a)-(y*y)/(b*b)];})],
+    trace: (plane,a,b) => plane==='xy'?lines(b/a,'xy',1.7,true) : plane==='xz'?parab(a,'xz',1.7,false) : parab(b,'yz',1.7,true),
+    intercepts: () => ({ x:{type:'Un punto',pts:[[0,0,0]]}, y:{type:'Un punto',pts:[[0,0,0]]}, z:{type:'Un punto',pts:[[0,0,0]]} }),
+    note: { xy:'Con z=0 factoriza en dos rectas por el origen (la silla vista desde arriba).', xz:'Con y=0 queda z = x²/a²: abre hacia arriba.', yz:'Con x=0 queda z = −y²/b²: abre hacia abajo.' },
+  },
+};
+const SURF_KEYS = Object.keys(SURF);
+function cx(v, tex, zeroed) { return zeroed && zeroed.includes(v) ? `\\cancel{${tex}}` : tex; }
+function fmt(n) { return Number.isInteger(n) ? String(n) : n.toFixed(1); }
+
+const TRACE_OPTIONS = ['Circunferencia','Elipse','Parábola','Hipérbola','Dos rectas','Recta','Punto','Vacío','No existe','Otro'];
+const AXIS_OPTIONS = ['Un punto','Dos puntos','Una recta','Dos rectas','Una curva','Vacío','No existe','Infinitos puntos'];
+const PLANE_LABEL = { xy:'Plano XY (z = 0)', xz:'Plano XZ (y = 0)', yz:'Plano YZ (x = 0)' };
+const AXIS_LABEL = { x:'Eje X (y=0, z=0)', y:'Eje Y (x=0, z=0)', z:'Eje Z (x=0, y=0)' };
+
+/* ============================================================
+   EJERCICIO 1 DEL TP1 (tal cual la guía)
+============================================================ */
+const EX1 = [
+  { id:'a', tex:'4x + 2y + 3z - 12 = 0', tipo:'Plano',
+    trazas:{ xy:'2x + y = 6 (una recta)', xz:'4x + 3z = 12 (una recta)', yz:'2y + 3z = 12 (una recta)' },
+    intercepts:{ x:'x = 3', y:'y = 6', z:'z = 4' } },
+  { id:'b', tex:'16 - 8x + 2y - 4z = 0', tipo:'Plano (equivale a 4x − y + 2z = 8)',
+    trazas:{ xy:'4x − y = 8 (una recta)', xz:'2x + z = 4 (una recta)', yz:'−y + 2z = 8 (una recta)' },
+    intercepts:{ x:'x = 2', y:'y = −8', z:'z = 4' } },
+  { id:'c', tex:'5y + 2z = 10', tipo:'Plano paralelo al eje x',
+    trazas:{ xy:'y = 2 (recta paralela al eje x)', xz:'z = 5 (recta paralela al eje x)', yz:'5y + 2z = 10 (la misma recta, no depende de x)' },
+    intercepts:{ x:'No corta (el plano es paralelo al eje x)', y:'y = 2', z:'z = 5' } },
+  { id:'d', tex:'z = 4', tipo:'Plano paralelo al plano xy',
+    trazas:{ xy:'No existe (son planos paralelos)', xz:'z = 4 (recta paralela al eje x)', yz:'z = 4 (recta paralela al eje y)' },
+    intercepts:{ x:'No corta', y:'No corta', z:'z = 4' } },
+  { id:'e', tex:'\\dfrac{x^2}{9} + \\dfrac{y^2}{16} + \\dfrac{z^2}{4} = 1', tipo:'Elipsoide',
+    trazas:{ xy:'Elipse: x²/9 + y²/16 = 1', xz:'Elipse: x²/9 + z²/4 = 1', yz:'Elipse: y²/16 + z²/4 = 1' },
+    intercepts:{ x:'x = ±3', y:'y = ±4', z:'z = ±2' }, load:{ key:'elipsoide', a:3, b:4, c:2 } },
+  { id:'f', tex:'\\dfrac{x^2}{4} + \\dfrac{y^2}{9} - \\dfrac{z^2}{25} = 1', tipo:'Hiperboloide de una hoja',
+    trazas:{ xy:'Elipse: x²/4 + y²/9 = 1', xz:'Hipérbola: x²/4 − z²/25 = 1', yz:'Hipérbola: y²/9 − z²/25 = 1' },
+    intercepts:{ x:'x = ±2', y:'y = ±3', z:'No corta' }, load:{ key:'h1hoja', a:2, b:3, c:5 } },
+  { id:'g', tex:'\\dfrac{y^2}{16} - \\dfrac{x^2}{4} - \\dfrac{z^2}{9} = 1', tipo:'Hiperboloide de dos hojas (eje y)',
+    trazas:{ xy:'Hipérbola: y²/16 − x²/4 = 1', xz:'Vacío (no existen soluciones reales)', yz:'Hipérbola: y²/16 − z²/9 = 1' },
+    intercepts:{ x:'No corta', y:'y = ±4', z:'No corta' } },
+  { id:'h', tex:'x^2 + y^2 = 4', tipo:'Cilindro circular recto (eje z, radio 2)',
+    trazas:{ xy:'Circunferencia: x² + y² = 4', xz:'x = ±2 (dos rectas paralelas al eje z)', yz:'y = ±2 (dos rectas paralelas al eje z)' },
+    intercepts:{ x:'x = ±2', y:'y = ±2', z:'No corta' } },
+  { id:'i', tex:'z = 4 - y^2 \\quad (z \\ge 0)', tipo:'Cilindro parabólico (eje x), acotado a z ≥ 0',
+    trazas:{ xy:'y = ±2 (dos rectas paralelas al eje x)', xz:'z = 4 (recta paralela al eje x)', yz:'Parábola: z = 4 − y² (con −2 ≤ y ≤ 2)' },
+    intercepts:{ x:'No corta', y:'y = ±2', z:'z = 4' } },
+  { id:'j', tex:'z = x^2 + y^2', tipo:'Paraboloide elíptico (circular)',
+    trazas:{ xy:'Punto (el vértice, en el origen)', xz:'Parábola: z = x²', yz:'Parábola: z = y²' },
+    intercepts:{ x:'Solo el origen', y:'Solo el origen', z:'Solo el origen' }, load:{ key:'parelip', a:1, b:1, c:1 } },
+  { id:'k', tex:'\\dfrac{z^2}{4} = x^2 + y^2', tipo:'Cono elíptico (circular)',
+    trazas:{ xy:'Punto (el vértice, en el origen)', xz:'Dos rectas: x = ±z/2', yz:'Dos rectas: y = ±z/2' },
+    intercepts:{ x:'Solo el origen', y:'Solo el origen', z:'Solo el origen' }, load:{ key:'cono', a:1, b:1, c:2 } },
+  { id:'l', tex:'z = \\dfrac{y^2}{9} - \\dfrac{x^2}{4} + 4', tipo:'Paraboloide hiperbólico con vértice desplazado a (0,0,4)',
+    trazas:{ xy:'Hipérbola: x²/16 − y²/36 = 1 (¡no son rectas, porque el vértice no está en el origen!)', xz:'Parábola hacia abajo: z = −x²/4 + 4, vértice en (0,0,4)', yz:'Parábola hacia arriba: z = y²/9 + 4, vértice en (0,0,4)' },
+    intercepts:{ x:'x = ±4', y:'No corta', z:'z = 4' } },
+];
+
+function makeLabel(text, color) {
+  const cv = document.createElement('canvas'); cv.width=64; cv.height=64;
+  const ctx = cv.getContext('2d');
+  ctx.font='bold 40px ui-sans-serif, system-ui'; ctx.fillStyle=color;
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text,32,34);
+  const tex = new THREE.CanvasTexture(cv);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, depthTest:false, transparent:true }));
+  sp.scale.set(0.35,0.35,0.35);
+  return sp;
+}
+
+/* ============================================================
+   ESTADO GLOBAL
+============================================================ */
+const st = {
+  surfaceKey:'elipsoide', a:2, b:3, c:1,
+  tab:'identificar', showAxesLbl:true, showGrid:true, opacity:0.85,
+  plane:null, guess:null, traceStep:0,
+  axis:null, axisGuess:null,
+  idTarget:null, idAnswer:null,
+};
+let three = {};
+
+/* ============================================================
+   ESCENA 3D
+============================================================ */
+function initScene(){
+  const mount = document.getElementById('mount');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0B1220);
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+  const renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  mount.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0xffffff,0.55));
+  const dl1 = new THREE.DirectionalLight(0xffffff,0.9); dl1.position.set(4,6,5); scene.add(dl1);
+  const dl2 = new THREE.DirectionalLight(0x88aaff,0.35); dl2.position.set(-5,-3,-4); scene.add(dl2);
+
+  const grid = new THREE.GridHelper(6,12,0x27344d,0x1a2438); grid.position.y=-2.4; scene.add(grid);
+
+  const axesGroup = new THREE.Group();
+  const axLen = 2.6;
+  const mkAxis = (dir,color) => {
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), dir.clone().multiplyScalar(axLen)]);
+    axesGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color })));
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.05,0.16,10), new THREE.MeshBasicMaterial({ color }));
+    cone.position.copy(dir.clone().multiplyScalar(axLen));
+    cone.lookAt(dir.clone().multiplyScalar(axLen*2)); cone.rotateX(Math.PI/2);
+    axesGroup.add(cone);
+  };
+  mkAxis(new THREE.Vector3(1,0,0), 0x8aa0c8);
+  mkAxis(new THREE.Vector3(0,1,0), 0x8aa0c8);
+  mkAxis(new THREE.Vector3(0,0,1), 0x8aa0c8);
+  const lx=makeLabel('y','#9fb3d6'); lx.position.set(axLen+0.25,0,0);
+  const ly=makeLabel('z','#9fb3d6'); ly.position.set(0,axLen+0.25,0);
+  const lz=makeLabel('x','#9fb3d6'); lz.position.set(0,0,axLen+0.25);
+  axesGroup.add(lx,ly,lz);
+  scene.add(axesGroup);
+
+  const planeMat = (hex) => new THREE.MeshBasicMaterial({ color:hex, transparent:true, opacity:0, side:THREE.DoubleSide, depthWrite:false });
+  const planeGeo = new THREE.PlaneGeometry(4.6,4.6);
+  const planeXY = new THREE.Mesh(planeGeo, planeMat(0x4fd1c5)); planeXY.rotation.x = Math.PI/2;
+  const planeXZ = new THREE.Mesh(planeGeo, planeMat(0xf5b942)); planeXZ.rotation.y = Math.PI/2;
+  const planeYZ = new THREE.Mesh(planeGeo, planeMat(0xf3706b));
+  scene.add(planeXY, planeXZ, planeYZ);
+
+  const traceGroup = new THREE.Group(); scene.add(traceGroup);
+  const interceptGroup = new THREE.Group(); scene.add(interceptGroup);
+  const surfaceGroup = new THREE.Group(); scene.add(surfaceGroup);
+
+  const orbit = { theta:0.7, phi:1.05, radius:7.5, dragging:false, lx:0, ly:0 };
+  const updateCam = () => {
+    const { theta, phi, radius } = orbit;
+    camera.position.set(radius*Math.sin(phi)*Math.cos(theta), radius*Math.cos(phi), radius*Math.sin(phi)*Math.sin(theta));
+    camera.lookAt(0,0,0);
+  };
+  updateCam();
+
+  const dom = renderer.domElement;
+  dom.style.cursor='grab';
+  dom.addEventListener('pointerdown', e => { orbit.dragging=true; orbit.lx=e.clientX; orbit.ly=e.clientY; dom.style.cursor='grabbing'; });
+  window.addEventListener('pointermove', e => {
+    if (!orbit.dragging) return;
+    const dx=e.clientX-orbit.lx, dy=e.clientY-orbit.ly;
+    orbit.theta -= dx*0.006;
+    orbit.phi = Math.max(0.2, Math.min(Math.PI-0.2, orbit.phi - dy*0.006));
+    orbit.lx=e.clientX; orbit.ly=e.clientY; updateCam();
+  });
+  window.addEventListener('pointerup', () => { orbit.dragging=false; dom.style.cursor='grab'; });
+  dom.addEventListener('wheel', e => { e.preventDefault(); orbit.radius = Math.max(3.5, Math.min(14, orbit.radius*(1+e.deltaY*0.001))); updateCam(); }, { passive:false });
+
+  const animState = { active: [] };
+  function loop(){
+    const now = performance.now();
+    animState.active = animState.active.filter(item => {
+      const t = Math.min(1, (now-item.start)/item.dur);
+      item.geo.setDrawRange(0, Math.floor(item.count*t));
+      return t < 1;
+    });
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  function resize(){
+    const w = mount.clientWidth, h = mount.clientHeight;
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w,h);
+  }
+  new ResizeObserver(resize).observe(mount);
+  resize();
+
+  three = { scene, camera, renderer, grid, axesGroup, planeXY, planeXZ, planeYZ, traceGroup, interceptGroup, surfaceGroup, animState, updateCam, orbit };
+}
+
+function rebuildSurface(){
+  const { surfaceGroup } = three;
+  while (surfaceGroup.children.length){ const m=surfaceGroup.children.pop(); m.geometry.dispose(); m.material.dispose(); }
+  const geos = SURF[st.surfaceKey].mesh(st.a, st.b, st.c);
+  geos.forEach(geo => {
+    const mat = new THREE.MeshStandardMaterial({ color:0x3fb8ce, transparent:true, opacity:st.opacity, side:THREE.DoubleSide, metalness:0.1, roughness:0.4, emissive:0x0a3a3a, emissiveIntensity:0.15 });
+    surfaceGroup.add(new THREE.Mesh(geo, mat));
+  });
+}
+function applyToggles(){
+  three.grid.visible = st.showGrid;
+  three.axesGroup.children.forEach(ch => { if (ch.type==='Sprite') ch.visible = st.showAxesLbl; });
+}
+function highlightPlane(){
+  three.planeXY.material.opacity = st.plane==='xy' ? 0.16 : 0;
+  three.planeXZ.material.opacity = st.plane==='xz' ? 0.16 : 0;
+  three.planeYZ.material.opacity = st.plane==='yz' ? 0.16 : 0;
+}
+function drawBranches(branches, color){
+  branches.forEach(pts => {
+    if (pts.length < 2) return;
+    const geo = new THREE.BufferGeometry().setFromPoints(pts.map(p => new THREE.Vector3(...toScene(...p))));
+    geo.setDrawRange(0,0);
+    three.traceGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color })));
+    three.animState.active.push({ geo, count: pts.length, start: performance.now(), dur: 900 });
+  });
+}
+function drawPoint(p, color, size=0.09){
+  const sph = new THREE.Mesh(new THREE.SphereGeometry(size,16,16), new THREE.MeshBasicMaterial({ color }));
+  sph.position.set(...toScene(...p));
+  three.traceGroup.add(sph);
+}
+function clearTraceGroup(){ const g=three.traceGroup; while(g.children.length){ const m=g.children.pop(); m.geometry.dispose(); m.material.dispose(); } }
+function clearInterceptGroup(){ const g=three.interceptGroup; while(g.children.length){ const m=g.children.pop(); m.geometry.dispose(); m.material.dispose(); } }
+
+/* ============================================================
+   ACCIONES
+============================================================ */
+function setSurface(key){ st.surfaceKey=key; st.a=2; st.b=3; st.c=1; rebuildSurface(); clearTraceGroup(); clearInterceptGroup(); st.guess=null; st.axisGuess=null; render(); }
+function loadExercise(key,a,b,c){
+  st.surfaceKey=key; st.a=a; st.b=b; st.c=c; st.tab='trazas'; st.plane=null; st.guess=null; st.axis=null; st.axisGuess=null;
+  rebuildSurface(); clearTraceGroup(); clearInterceptGroup(); highlightPlane(); render();
+}
+function setParam(letter,val){ st[letter]=val; rebuildSurface(); render(); }
+function switchTab(tab){ st.tab=tab; st.plane=null; st.axis=null; st.guess=null; st.axisGuess=null; clearTraceGroup(); clearInterceptGroup(); highlightPlane(); render(); }
+function selectPlane(p){ st.plane = st.plane===p ? null : p; st.guess=null; st.traceStep=0; clearTraceGroup(); highlightPlane(); render(); }
+function selectAxis(ax){ st.axis = st.axis===ax ? null : ax; st.axisGuess=null; clearInterceptGroup(); render(); }
+
+function answerTrace(choice){
+  if (!st.plane) return;
+  const real = SURF[st.surfaceKey].trace(st.plane, st.a, st.b, st.c);
+  st.guess = choice;
+  clearTraceGroup();
+  const correct = choice === real.type;
+  const genericOf = (type) => {
+    if (type==='Circunferencia') return ell(1.3,1.3,st.plane);
+    if (type==='Elipse') return ell(1.4,0.9,st.plane);
+    if (type==='Hipérbola') return hyp(1.3,0.9,st.plane);
+    if (type==='Parábola') return parab(1.1,st.plane,1.6,false);
+    if (type==='Dos rectas' || type==='Recta') return lines(0.7,st.plane,1.6,true);
+    return null;
+  };
+  const guessData = correct ? real : genericOf(choice);
+  if (choice==='Punto') drawPoint([0,0,0], 0xe08a3a);
+  else if (guessData) drawBranches(guessData.branches, 0xe08a3a);
+  if (!correct){
+    if (real.type==='Punto') drawPoint([0,0,0], 0x4fd1c5, 0.07);
+    else if (real.branches) drawBranches(real.branches, 0x4fd1c5);
+  }
+  render();
+}
+function answerAxis(choice){
+  if (!st.axis) return;
+  const real = SURF[st.surfaceKey].intercepts(st.a,st.b,st.c)[st.axis];
+  st.axisGuess = choice;
+  clearInterceptGroup();
+  const correct = choice === real.type;
+  const dir = st.axis==='x'?[1,0,0]:st.axis==='y'?[0,1,0]:[0,0,1];
+  if (correct){
+    if (real.type==='Un punto') drawPoint([0,0,0], 0xe08a3a, 0.1);
+    else if (real.type==='Dos puntos') real.pts.forEach(p => drawPoint(p, 0xe08a3a, 0.1));
+  } else {
+    if (choice==='Un punto') drawPoint([0,0,0], 0xe08a3a, 0.1);
+    else if (choice==='Dos puntos'){ drawPoint(dir.map(v=>v*0.9), 0xe08a3a, 0.1); drawPoint(dir.map(v=>-v*0.9), 0xe08a3a, 0.1); }
+    if (real.type==='Un punto') drawPoint([0,0,0], 0x4fd1c5, 0.09);
+    else if (real.type==='Dos puntos') real.pts.forEach(p => drawPoint(p, 0x4fd1c5, 0.09));
+  }
+  render();
+}
+function nextRandomId(){
+  const key = SURF_KEYS[Math.floor(Math.random()*SURF_KEYS.length)];
+  const EASY = [1,2,3,4];
+  const rnd = () => EASY[Math.floor(Math.random()*EASY.length)];
+  st.idTarget = { key, a: rnd(), b: rnd(), c: rnd() };
+  st.idAnswer = null;
+  render();
+}
+function answerId(key){
+  st.idAnswer = key;
+  if (st.idTarget){ st.surfaceKey = st.idTarget.key; st.a = st.idTarget.a; st.b = st.idTarget.b; st.c = st.idTarget.c; rebuildSurface(); }
+  render();
+}
+
+/* ============================================================
+   RENDER DE LA UI (equivalente a la parte JSX del artifact)
+============================================================ */
+function mathTo(el, latex){ try { katex.render(latex, el, { throwOnError:false, displayMode:true }); } catch(e){ el.textContent = latex; } }
+
+function render(){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===st.tab));
+  document.getElementById('btnLbl').classList.toggle('active', st.showAxesLbl);
+  document.getElementById('btnGrid').classList.toggle('active', st.showGrid);
+
+  const zeroed = st.tab==='trazas' && st.plane ? {xy:['z'],xz:['y'],yz:['x']}[st.plane]
+    : st.tab==='intersecciones' && st.axis ? {x:['y','z'],y:['x','z'],z:['x','y']}[st.axis]
+    : [];
+  mathTo(document.getElementById('eqBadge'), SURF[st.surfaceKey].tex(st.a, st.b, st.c, zeroed));
+
+  const body = document.getElementById('panelBody');
+  const meta = SURF[st.surfaceKey];
+
+  if (st.tab==='identificar'){
+    if (!st.idTarget) nextRandomId();
+    const t = st.idTarget;
+    body.innerHTML = `
+      <div class="col">
+        <p class="dim">¿Qué superficie es esta ecuación?</p>
+        <div class="card"><div id="idEq" class="katex-eq"></div></div>
+        <div class="grid2" id="idButtons">
+          ${SURF_KEYS.map(k => `<button class="btn${st.idAnswer===k?' active':''}" data-act="answerId" data-val="${k}">${SURF[k].label}</button>`).join('')}
+        </div>
+        <p id="idFeedback"></p>
+        <button class="btn" data-act="nextRandomId">Nueva ecuación</button>
+      </div>`;
+    mathTo(document.getElementById('idEq'), SURF[t.key].tex(t.a, t.b, t.c, []));
+    if (st.idAnswer){
+      const correct = st.idAnswer === t.key;
+      document.getElementById('idFeedback').innerHTML = `<span class="${correct?'ok':'bad'}">${correct?'¡Correcto! ':'No — es '+SURF[t.key].label+'. '}Quedó cargada en la escena 3D para que la explores.</span>`;
+    }
+  }
+
+  else if (st.tab==='trazas'){
+    let html = `<div class="col"><p class="dim">Elegí un plano de corte.</p><div class="col">`;
+    ['xy','xz','yz'].forEach(p => { html += `<button class="btn${st.plane===p?' active':''}" data-act="selectPlane" data-val="${p}">${PLANE_LABEL[p]}</button>`; });
+    html += `</div>`;
+    if (st.plane && !st.guess){
+      html += `<p style="margin-top:8px;">¿Qué figura geométrica se obtiene?</p><div class="row">`;
+      TRACE_OPTIONS.forEach(o => { html += `<button class="btn" data-act="answerTrace" data-val="${o}">${o}</button>`; });
+      html += `</div>
+      <details><summary>Resolver paso a paso</summary>
+        <div class="col" style="margin-top:8px;">
+          <p id="stepTxt"></p>
+          <div class="row">
+            <button class="btn" data-act="stepPrev" ${st.traceStep===0?'disabled':''}>Anterior</button>
+            <button class="btn" data-act="stepNext">${'placeholder'}</button>
+          </div>
+        </div>
+      </details>`;
+    }
+    if (st.plane && st.guess){
+      const real = meta.trace(st.plane, st.a, st.b, st.c);
+      const correct = st.guess === real.type;
+      html += `<p class="${correct?'ok':'bad'}">${correct
+        ? `Correcto: la curva naranja coincide con la superficie. ${meta.note[st.plane]}`
+        : `La curva naranja (${st.guess}) no se apoya en la superficie. La real (verde) es ${real.type}. ${meta.note[st.plane]}`}</p>`;
+    }
+    html += `</div>`;
+    body.innerHTML = html;
+    if (st.plane && !st.guess){
+      const steps = [
+        `Partimos de la ecuación de la superficie.`,
+        `Planteamos ${st.plane==='xy'?'z = 0':st.plane==='xz'?'y = 0':'x = 0'} para cortar con el ${PLANE_LABEL[st.plane].toLowerCase()}.`,
+        `Reemplazamos y simplificamos (mirá el término tachado arriba).`,
+        `Reconocemos la figura: ${meta.trace(st.plane, st.a, st.b, st.c).type}.`,
+        `Proyectamos la curva sobre la superficie para confirmar.`,
+      ];
+      document.getElementById('stepTxt').textContent = steps[Math.min(st.traceStep, steps.length-1)];
+      document.querySelector('[data-act="stepNext"]').textContent = st.traceStep >= steps.length-1 ? 'Dibujar' : 'Siguiente';
+    }
+  }
+
+  else if (st.tab==='intersecciones'){
+    let html = `<div class="col"><p class="dim">Elegí un eje.</p><div class="col">`;
+    ['x','y','z'].forEach(ax => { html += `<button class="btn${st.axis===ax?' active':''}" data-act="selectAxis" data-val="${ax}">${AXIS_LABEL[ax]}</button>`; });
+    html += `</div>`;
+    if (st.axis && !st.axisGuess){
+      html += `<p style="margin-top:8px;">¿Qué obtenemos al anular esas dos variables?</p><div class="row">`;
+      AXIS_OPTIONS.forEach(o => { html += `<button class="btn" data-act="answerAxis" data-val="${o}">${o}</button>`; });
+      html += `</div>`;
+    }
+    if (st.axis && st.axisGuess){
+      const real = meta.intercepts(st.a,st.b,st.c)[st.axis];
+      const correct = st.axisGuess === real.type;
+      html += `<p class="${correct?'ok':'bad'}">${correct
+        ? `Correcto: ${real.type==='No existe' ? 'no existen puntos reales de intersección.' : 'se ve(n) '+real.type.toLowerCase()+' sobre el eje.'}`
+        : `No — el resultado real es "${real.type}"${real.type==='No existe' ? ': no existen puntos reales de intersección.' : '.'}`}</p>`;
+    }
+    html += `</div>`;
+    body.innerHTML = html;
+  }
+
+  else if (st.tab==='libre'){
+    let html = `<div class="col">
+      <p class="dim">Elegí la superficie y movés los parámetros — la malla y la ecuación se actualizan solas.</p>
+      <div class="grid2">`;
+    SURF_KEYS.forEach(k => { html += `<button class="btn${st.surfaceKey===k?' active':''}" data-act="setSurface" data-val="${k}">${SURF[k].label}</button>`; });
+    html += `</div>`;
+    [['a',st.a],['b',st.b],['c',st.c]].forEach(([label,val]) => {
+      html += `<div><div class="row" style="justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Parámetro ${label}</span><span style="color:var(--accent);">${fmt(val)}</span></div>
+        <input type="range" min="1" max="5" step="1" value="${val}" data-act="setParam" data-letter="${label}"></div>`;
+    });
+    html += `<div><div class="row" style="justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Opacidad de la superficie</span><span style="color:var(--accent);">${Math.round(st.opacity*100)}%</span></div>
+      <input type="range" min="0.15" max="1" step="0.05" value="${st.opacity}" data-act="setOpacity"></div>
+      <p class="dim" style="font-size:12px;">Tip: en el Elipsoide o el Hiperboloide de una hoja, igualá dos parámetros (por ej. a = b) y volvé a la pestaña Trazas — la traza xy pasa de "Elipse" a "Circunferencia".</p>
+      </div>`;
+    body.innerHTML = html;
+  }
+
+  else if (st.tab==='ejercicios'){
+    let html = `<div class="col">
+      <p class="dim" style="font-size:12.5px;">Ejercicio 1 — "Dadas las siguientes superficies, identificarlas, hallar sus trazas, sus intersecciones con los ejes coordenados y representarlas gráficamente." Pensá vos primero cada ítem y después tocá "Ver resolución" para chequear.</p>`;
+    EX1.forEach(ex => {
+      html += `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+          <span style="font-weight:600;">${ex.id})</span>
+          ${ex.load ? `<button class="btn" data-act="loadExercise" data-val="${ex.id}" style="font-size:11px;padding:5px 8px;">Abrir en el laboratorio 3D</button>` : ''}
+        </div>
+        <div class="katex-eq" id="ex-eq-${ex.id}" style="margin:4px 0;"></div>
+        <details>
+          <summary>Ver resolución</summary>
+          <div style="margin-top:6px;font-size:12.5px;">
+            <p style="margin:0 0 4px;"><b>Tipo:</b> ${ex.tipo}</p>
+            <p style="margin:0 0 2px;"><b>Traza xy (z=0):</b> ${ex.trazas.xy}</p>
+            <p style="margin:0 0 2px;"><b>Traza xz (y=0):</b> ${ex.trazas.xz}</p>
+            <p style="margin:0 0 6px;"><b>Traza yz (x=0):</b> ${ex.trazas.yz}</p>
+            <p style="margin:0 0 2px;"><b>Eje x:</b> ${ex.intercepts.x}</p>
+            <p style="margin:0 0 2px;"><b>Eje y:</b> ${ex.intercepts.y}</p>
+            <p style="margin:0;"><b>Eje z:</b> ${ex.intercepts.z}</p>
+          </div>
+        </details>
+      </div>`;
+    });
+    html += `<p class="dim" style="font-size:11.5px;">Los ejercicios 2 a 5 del TP (relacionar gráficos, aplicaciones de arquitectura, funciones de dos variables, intersecciones y volúmenes) quedan para una próxima vuelta — avisame y seguimos.</p></div>`;
+    body.innerHTML = html;
+    EX1.forEach(ex => { const el = document.getElementById('ex-eq-'+ex.id); if (el) mathTo(el, ex.tex); });
+  }
+}
+
+/* ============================================================
+   EVENTOS (delegación)
+============================================================ */
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act, val = el.dataset.val;
+  if (act==='toggleLbl'){ st.showAxesLbl=!st.showAxesLbl; applyToggles(); render(); }
+  else if (act==='toggleGrid'){ st.showGrid=!st.showGrid; applyToggles(); render(); }
+  else if (act==='resetView'){ three.orbit.theta=0.7; three.orbit.phi=1.05; three.orbit.radius=7.5; three.updateCam(); }
+  else if (act==='answerId') answerId(val);
+  else if (act==='nextRandomId') nextRandomId();
+  else if (act==='selectPlane') selectPlane(val);
+  else if (act==='answerTrace') answerTrace(val);
+  else if (act==='selectAxis') selectAxis(val);
+  else if (act==='answerAxis') answerAxis(val);
+  else if (act==='setSurface') setSurface(val);
+  else if (act==='loadExercise'){ const ex = EX1.find(e => e.id===val); if (ex && ex.load) loadExercise(ex.load.key, ex.load.a, ex.load.b, ex.load.c); }
+  else if (act==='switchTab') switchTab(val);
+  else if (act==='stepPrev'){ st.traceStep = Math.max(0, st.traceStep-1); render(); }
+  else if (act==='stepNext'){
+    const steps = 5;
+    if (st.traceStep >= steps-1) answerTrace(SURF[st.surfaceKey].trace(st.plane, st.a, st.b, st.c).type);
+    else { st.traceStep++; render(); }
+  }
+});
+document.addEventListener('input', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  if (el.dataset.act==='setParam') setParam(el.dataset.letter, parseFloat(el.value));
+  else if (el.dataset.act==='setOpacity') { st.opacity=parseFloat(el.value); rebuildSurface(); render(); }
+});
+
+/* ============================================================
+   ARRANQUE
+============================================================ */
+window.addEventListener('load', () => {
+  initScene();
+  rebuildSurface();
+  applyToggles();
+  nextRandomId();
+  render();
+});
+</script>
+</body>
+</html>
